@@ -22,99 +22,221 @@ html,body{background:${e.bg};font-family:'Noto Serif KR',serif;}
 /* ── 데스크탑 레이아웃 (768px+) ── */
 @media(min-width:768px){
   html,body{background:${e.bg};}
+
+  /* ── 전체 레이아웃: 사이드바 + 메인 ── */
   .app-inner{
-    max-width:1100px;margin:0 auto;
+    max-width:1200px;margin:0 auto;
     display:grid;
-    grid-template-columns:240px 1fr;
-    grid-template-rows:auto 1fr;
+    grid-template-columns:280px 1fr;
     min-height:100vh;
-    box-shadow:none;
+    box-shadow:0 0 80px rgba(0,0,0,0.3);
   }
-  /* 데스크탑 헤더: 사이드바 상단 고정 */
+
+  /* ── 사이드바 ── */
   .hdr{
-    grid-column:1;grid-row:1/3;
+    grid-column:1;
     position:sticky;top:0;height:100vh;
-    flex-direction:column;justify-content:flex-start;align-items:flex-start;
-    padding:36px 24px 24px;
+    flex-direction:column;justify-content:flex-start;align-items:stretch;
+    padding:0;
     border-bottom:none;border-right:1px solid ${e.border};
-    max-width:240px;margin:0;
+    max-width:280px;width:280px;margin:0;
     background:${e.s1};
     overflow-y:auto;
   }
-  .hdr-center{text-align:left;margin-bottom:24px;}
-  .hdr-sub{font-size:8px;letter-spacing:0.25em;margin-bottom:4px;}
-  .hdr-title{font-size:18px;line-height:1.3;}
-  /* 사이드바에서 설정 버튼 위치 조정 */
-  .hdr-right-wrap{display:flex;flex-direction:column;gap:8px;width:100%;margin-top:auto;}
 
-  /* 사이드바 내비 */
+  /* 사이드바 상단: 교회명 + 앱이름 */
+  .hdr-center{
+    text-align:center;
+    padding:36px 24px 28px;
+    border-bottom:1px solid ${e.border};
+    margin-bottom:0;
+    width:100%;
+  }
+  .hdr-sub{
+    font-size:9px;letter-spacing:0.28em;
+    color:${e.gold};margin-bottom:8px;
+    display:block;
+  }
+  .hdr-title{font-size:20px;line-height:1.4;letter-spacing:0.04em;}
+
+  /* 팀 뱃지 */
+  .hdr-badge{
+    display:inline-block;
+    margin-top:10px;font-size:12px;
+    padding:5px 14px;
+  }
+
+  /* 사이드바 설정 버튼 - 아이콘 버튼 숨기고 사이드바 하단에 표시 */
+  .hdr-icon-btn{display:none;}
+
+  /* ── 사이드바 내비게이션 ── */
   .nav{
     position:static;transform:none;
     flex-direction:column;
-    width:100%;max-width:240px;
-    border-top:none;border-right:none;
+    width:100%;max-width:280px;
+    border-top:none;
     background:transparent;
-    padding:8px 0;
+    padding:16px 16px;
     backdrop-filter:none;
+    flex:1;
   }
   .nbtn{
-    flex:none;flex-direction:row;justify-content:flex-start;
-    padding:12px 16px;border-radius:12px;gap:12px;
-    font-size:${t.body}px;margin-bottom:4px;
-    transition:background 0.15s,color 0.2s;
+    flex:none;
+    flex-direction:row;
+    justify-content:flex-start;
+    padding:16px 20px;
+    border-radius:14px;
+    gap:16px;
+    font-size:17px;
+    font-weight:500;
+    margin-bottom:6px;
+    color:${e.cream2};
+    transition:background 0.15s,color 0.15s;
+    letter-spacing:0.02em;
+    width:100%;
   }
-  .nbtn:hover{background:${e.s2};}
-  .nbtn.on{color:${e.gold2};background:${e.s2};}
-  .ni{font-size:18px;}
+  .nbtn:hover{background:${e.s2};color:${e.cream};}
+  .nbtn.on{
+    color:${e.gold2};
+    background:linear-gradient(135deg,${e.s2},${e.s3});
+    border-left:3px solid ${e.gold2};
+    padding-left:17px;
+    font-weight:700;
+  }
+  .ni{font-size:26px;flex-shrink:0;}
 
-  /* 메인 콘텐츠 영역 */
+  /* 사이드바 하단: 설정 버튼 */
+  .nav::after{
+    content:'';display:block;flex:1;
+  }
+  .desk-settings-btn{
+    display:flex!important;
+    align-items:center;gap:14px;
+    padding:16px 20px;margin:0 16px 20px;
+    border-radius:14px;border:1px solid ${e.border};
+    background:none;color:${e.cream3};
+    font-size:15px;font-family:'Noto Serif KR',serif;
+    cursor:pointer;transition:all 0.15s;width:calc(100% - 32px);
+    letter-spacing:0.02em;
+  }
+  .desk-settings-btn:hover{background:${e.s2};color:${e.cream};border-color:${e.borderl};}
+  .desk-settings-icon{font-size:22px;}
+
+  /* ── 메인 콘텐츠 ── */
   .content{
-    grid-column:2;grid-row:1/3;
-    padding:32px 36px 40px;
-    max-width:860px;
+    grid-column:2;
+    padding:40px 48px 60px;
     overflow-y:auto;
+    height:100vh;
   }
 
-  /* 홈 카드 데스크탑 */
-  .today-card{padding:28px 28px;}
-  .tc-day{font-size:38px;}
-  .streak-row{gap:14px;}
-  .sbadge{padding:16px;}
-  .sbadge-val{font-size:22px;}
-  .sbadge-icon{font-size:24px;}
+  /* 홈 — 카드 크게 */
+  .today-card{padding:32px 32px;margin-bottom:24px;border-radius:20px;}
+  .tc-badge{font-size:10px;margin-bottom:10px;}
+  .tc-day{font-size:48px;margin-bottom:4px;}
+  .tc-week{font-size:13px;margin-bottom:8px;}
+  .tc-passage{font-size:17px;margin-bottom:24px;line-height:1.7;}
+  .rbtn{padding:16px;font-size:17px;border-radius:14px;}
 
-  /* 읽기 화면 데스크탑 */
-  .rdg-topbar{top:0;grid-column:2;}
-  .verses-wrap{padding:28px 32px 120px;max-width:720px;}
-  .vtext{font-size:${t.verse}px;line-height:2.2;}
+  /* 통계 뱃지 */
+  .streak-row{gap:16px;margin-bottom:24px;}
+  .sbadge{padding:20px 16px;border-radius:16px;}
+  .sbadge-icon{font-size:28px;}
+  .sbadge-val{font-size:28px;}
+  .sbadge-lbl{font-size:13px;margin-top:4px;}
 
-  /* TTS 바 데스크탑 */
+  /* 진행 섹션 */
+  .prog-sect{margin-bottom:24px;}
+  .sttl{font-size:10px;margin-bottom:12px;}
+  .prog-nums{font-size:28px;}
+  .prog-of{font-size:13px;}
+  .pbar-bg{height:10px;}
+  .wd{height:9px;}
+  .week-dots{gap:5px;margin-top:10px;}
+
+  /* 동기부여 */
+  .motiv{font-size:16px;padding:18px 22px;line-height:2.0;margin-bottom:0;}
+  .motiv-mark{font-size:22px;}
+
+  /* 읽기 화면 */
+  .rdg-topbar{
+    top:0;
+    padding:16px 24px;
+    border-bottom:1px solid ${e.border};
+    position:sticky;
+    background:${e.hdrBg};
+    z-index:80;
+  }
+  .back-btn{width:42px;height:42px;font-size:18px;}
+  .rdg-dlbl{font-size:10px;margin-bottom:2px;}
+  .rdg-dtitle{font-size:17px;}
+  .verses-wrap{padding:32px 40px 140px;max-width:740px;}
+  .ch-heading{font-size:14px;margin:32px 0 18px;padding-bottom:12px;letter-spacing:0.16em;}
+  .ch-heading:first-child{margin-top:0;}
+  .verse-item{padding:10px 14px;margin-bottom:14px;border-radius:12px;gap:14px;}
+  .vnum{font-size:14px;min-width:26px;padding-top:7px;}
+  .vtext{font-size:18px;line-height:2.2;font-weight:300;}
+
+  /* TTS 바 */
   .tts-bar{
-    left:calc(240px + (100% - 240px)/2);
-    width:calc(100% - 240px - 48px);
-    max-width:720px;bottom:24px;
-    border-radius:16px;
+    position:fixed;
+    left:calc(280px + 24px);
+    width:calc(100% - 280px - 48px);
+    max-width:none;
+    bottom:28px;
+    border-radius:18px;
+    padding:16px 22px 14px;
+    transform:none;
   }
+  .tts-now{font-size:14px;margin-bottom:12px;}
+  .tts-dot{width:9px;height:9px;}
+  .tts-ctrl{gap:12px;margin-bottom:12px;}
+  .tts-skip{width:44px;height:44px;font-size:17px;}
+  .tts-play{width:60px;height:60px;font-size:26px;}
+  .prog-track{height:5px;}
+  .prog-lbl{font-size:12px;}
+  .tts-bottom{gap:8px;}
+  .rate-lbl{font-size:13px;}
+  .ratebtn{padding:6px 14px;font-size:13px;}
+  .done-btn{padding:8px 18px;font-size:14px;}
 
-  /* 전역 TTS 데스크탑 */
+  /* 전역 TTS */
   .global-tts-bar{
-    left:calc(240px + (100% - 240px)/2);
-    transform:translateX(-50%);
-    width:calc(100% - 240px - 48px);
-    max-width:720px;bottom:24px;
+    left:calc(280px + 24px);
+    transform:none;
+    width:calc(100% - 280px - 48px);
+    max-width:none;
+    bottom:28px;
+    padding:14px 20px;
   }
+  .global-tts-lbl{font-size:13px;}
+  .global-tts-txt{font-size:13px;}
+  .global-tts-play{width:46px;height:46px;font-size:20px;}
+  .global-tts-stop{width:40px;height:40px;font-size:16px;}
 
-  /* 설정 시트 데스크탑: 사이드바 내부에서 인라인으로 */
+  /* 설정 모달 */
   .overlay{align-items:center;justify-content:center;}
-  .sheet{border-radius:20px;max-width:460px;padding:28px 24px 36px;}
+  .sheet{
+    border-radius:22px;
+    max-width:520px;
+    padding:32px 28px 40px;
+    animation:fadeUp 0.2s ease;
+  }
+  .sheet-label{font-size:11px;margin-bottom:14px;}
+  .theme-btn,.fs-btn{padding:18px 12px;}
+  .theme-btn-icon{font-size:30px;margin-bottom:8px;}
+  .theme-btn-label,.fs-btn-label{font-size:15px;}
+  .theme-btn-sub,.fs-btn-sub{font-size:12px;}
+  .name-input{font-size:16px;padding:13px 16px;}
+  .name-save-btn{font-size:14px;padding:13px 20px;}
 
-  /* 스케줄 데스크탑: 2열 그리드 */
-  .schedule-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  /* 일정표 */
+  .schedule-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
   .week-block{margin-bottom:0;}
-
-  /* 주간 닷 더 크게 */
-  .wd{height:8px;}
-  .week-dots{gap:4px;}
+  .wk-num{font-size:11px;}
+  .wk-sub,.wk-prog{font-size:12px;}
+  .dnum{width:32px;height:32px;font-size:13px;}
+  .dtext{font-size:14px;}
 }
 
 /* 전역 TTS 미니바 */
@@ -162,6 +284,8 @@ html,body{background:${e.bg};font-family:'Noto Serif KR',serif;}
 /* 헤더 */
 .hdr{position:sticky;top:0;z-index:100;background:${e.hdrBg};backdrop-filter:blur(12px);border-bottom:1px solid ${e.border};padding:11px 14px 10px;display:flex;align-items:center;justify-content:space-between;max-width:480px;margin:0 auto;flex-wrap:wrap;}
 .hdr-center{flex:1;text-align:center;}
+.desk-settings-btn{display:none;}
+.desk-settings-icon{font-size:22px;}
 .hdr-sub{font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.28em;color:${e.gold};text-transform:uppercase;margin-bottom:1px;}
 .hdr-title{font-size:16px;font-weight:700;color:${e.cream};}
 .hdr-badge{font-size:10px;padding:3px 9px;border-radius:100px;font-family:'Noto Serif KR',serif;font-weight:600;}
@@ -323,7 +447,7 @@ html,body{background:${e.bg};font-family:'Noto Serif KR',serif;}
 @keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
 @keyframes spin{to{transform:rotate(360deg);}}
 @keyframes dotPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.35;transform:scale(0.55);}}
-`}function k(){let[e,t]=(0,y.useState)(``),[n,r]=(0,y.useState)(``),[i,a]=(0,y.useState)(!1),[o,s]=(0,y.useState)(!0),[c,l]=(0,y.useState)(``),[u,d]=(0,y.useState)(`home`),[f,p]=(0,y.useState)(null),[m,h]=(0,y.useState)([]),[g,_]=(0,y.useState)([]),[v,b]=(0,y.useState)([]),[ee,S]=(0,y.useState)(!1),[C,te]=(0,y.useState)(`dark`),[se,ce]=(0,y.useState)(`normal`),[T,k]=(0,y.useState)(`idle`),[me,he]=(0,y.useState)(-1),[ge,_e]=(0,y.useState)(0),[ve,ye]=(0,y.useState)(.85),be=(0,y.useRef)(window.speechSynthesis),xe=(0,y.useRef)(!1),Se=(0,y.useRef)([]),Ce=(0,y.useRef)(0),we=(0,y.useRef)(.85),Te=(0,y.useRef)({}),Ee=(0,y.useRef)(null),De=(0,y.useRef)(-1),Oe=e=>{try{return localStorage.getItem(e)}catch{return null}},ke=(e,t)=>{try{localStorage.setItem(e,t)}catch{}};(0,y.useEffect)(()=>{try{let e=Oe(`sindae-myname`);e&&(t(e),l(e))}catch{}try{let e=Oe(`sindae-myteam`);e&&(r(e),a(!0))}catch{}try{let e=Oe(`sindae-progress`);e&&h(JSON.parse(e))}catch{}try{let e=Oe(`sindae-theme`);e&&te(e)}catch{}try{let e=Oe(`sindae-fontsize`);e&&ce(e)}catch{}try{let e=Oe(`sindae-rate2`);if(e){let t=parseFloat(e);ye(t),we.current=t}}catch{}return s(!1),window.speechSynthesis.onvoiceschanged=()=>{},()=>be.current?.cancel()},[]);let Ae=(0,y.useCallback)(async(e,t,n)=>{try{let r=window.FIREBASE_CONFIG;if(!r)return;let i=`${r.dbUrl}/members/${encodeURIComponent(e)}.json`;await fetch(i,{method:`PUT`,headers:{"Content-Type":`application/json`},body:JSON.stringify({name:e,team:t,completed:n,updatedAt:Date.now()})})}catch{}},[]);(0,y.useCallback)((e,t,n)=>{Ae(e,t,n)},[Ae]);let je=e=>{let n=c.trim();n&&(t(n),r(e),a(!0),ke(`sindae-myname`,n),ke(`sindae-myteam`,e),le(n,e,m))},A=ue[C],Me=de[se],Ne=t=>{ke(`sindae-progress`,JSON.stringify(t)),le(e,n,t)},Pe=(()=>{for(let e=0;e<63;e++)if(!m.includes(e))return e;return 62})(),Fe=(0,y.useCallback)(e=>{let[,t]=ie[e],n=[];for(let{b:e,c:r}of t){let t=re[e];for(let i of r){let r=ne[t]?.[i]||{};Object.keys(r).map(Number).sort((e,t)=>e-t).forEach(a=>n.push({id:`${t}-${i}-${a}`,book:e,ch:i,vn:a,text:r[a]}))}}return n},[]),Ie=e=>{Ve(),p(e),Ee.current=e,he(-1),De.current=-1,_e(0),Ce.current=0,d(`reading`);let t=Fe(e),n=pe(t);_(t),Se.current=n,b(n)},Le=e=>{let t=Se.current[e];if(!t||!xe.current)return;Ce.current=e,_e(e);let n=be.current,r=t.verses.map(({verse:e})=>e.text).join(` `),i=new SpeechSynthesisUtterance(r);i.lang=`ko-KR`,i.rate=we.current,i.pitch=1;let a=fe();a&&(i.voice=a);let o=t.firstIdx;he(o),De.current=o;let s=Te.current[o];s&&s.scrollIntoView({behavior:`smooth`,block:`center`}),t.verses.map(e=>e.verse.text);let c=0,l=[];for(let{verse:e,idx:n}of t.verses)l.push({start:c,idx:n}),c+=e.text.length+1;i.onboundary=e=>{if(e.name!==`word`)return;let t=e.charIndex,n=l[0].idx;for(let e of l)if(t>=e.start)n=e.idx;else break;if(n!==De.current){he(n),De.current=n;let e=Te.current[n];e&&e.scrollIntoView({behavior:`smooth`,block:`center`})}},i.onend=()=>{xe.current?Le(e+1):k(`idle`)},i.onerror=t=>{t.error!==`interrupted`&&xe.current&&Le(e+1)},n.speak(i)},Re=(e=0)=>{be.current?.cancel(),xe.current=!0,k(`playing`);let t=0;for(let n=0;n<Se.current.length;n++)Se.current[n].verses.some(t=>t.idx<=e)&&(t=n);Le(t)},ze=()=>{T===`idle`?Re(De.current>=0?De.current:0):T===`playing`?(be.current?.pause(),k(`paused`),xe.current=!1):T===`paused`&&(be.current?.resume(),k(`playing`),xe.current=!0)},Be=e=>{let t=Math.max(0,Math.min(Se.current.length-1,Ce.current+e));Ve(),setTimeout(()=>{xe.current=!0,k(`playing`),Le(t)},60)},Ve=()=>{be.current?.cancel(),xe.current=!1,k(`idle`),he(-1),De.current=-1},He=async e=>{if(we.current=e,ye(e),ke(`sindae-rate2`,String(e)),T!==`idle`){Ce.current;let e=De.current;Ve(),setTimeout(()=>{xe.current=!0,k(`playing`);let t=0;for(let n=0;n<Se.current.length;n++)Se.current[n].verses.some(t=>t.idx<=Math.max(e,0))&&(t=n);Le(t)},80)}},Ue=e=>{if(m.includes(e))return;let t=[...m,e];h(t),Ne(t)},We=e=>{te(e),ke(`sindae-theme`,e)},Ge=e=>{ce(e),ke(`sindae-fontsize`,e)},Ke=()=>{let r=c.trim();r&&(E(e),t(r),ke(`sindae-myname`,r),le(r,n,m),S(!1))},qe=Math.round(m.length/63*100),Je=g.length>0?Math.round((me+1)/g.length*100):0,Ye=g[me],Xe=f===null?0:Math.floor(f/7),Ze=f===null?``:`${Xe+1}주차 ${f%7+1}일차`;return/KAKAOTALK/i.test(navigator.userAgent)?(0,x.jsxs)(`div`,{className:`app`,children:[(0,x.jsx)(`style`,{children:O(A,Me)}),(0,x.jsxs)(`div`,{style:{minHeight:`100vh`,display:`flex`,flexDirection:`column`,alignItems:`center`,justifyContent:`center`,padding:32,textAlign:`center`,gap:20,background:A.bg},children:[(0,x.jsx)(`div`,{style:{fontSize:52,filter:`drop-shadow(0 0 24px rgba(200,128,26,0.5))`},children:`✝`}),(0,x.jsx)(`div`,{style:{fontFamily:`'Cinzel',serif`,fontSize:10,letterSpacing:`0.3em`,color:A.gold,textTransform:`uppercase`},children:`신대중앙교회 신약의 삶`}),(0,x.jsxs)(`div`,{style:{background:A.s1,border:`1px solid ${A.borderl}`,borderRadius:20,padding:`28px 24px`,maxWidth:360,width:`100%`,boxShadow:`0 0 40px rgba(200,128,26,0.1)`},children:[(0,x.jsxs)(`div`,{style:{fontSize:22,fontWeight:700,color:A.cream,marginBottom:12,lineHeight:1.4},children:[`외부 브라우저로`,(0,x.jsx)(`br`,{}),`열어주세요`]}),(0,x.jsxs)(`div`,{style:{fontSize:14,color:A.cream2,lineHeight:2,marginBottom:22},children:[`카카오톡 안에서는`,(0,x.jsx)(`br`,{}),`읽기 기록이 저장되지 않아요.`,(0,x.jsx)(`br`,{}),(0,x.jsx)(`br`,{}),`아래 방법으로 열어주세요 👇`]}),(0,x.jsxs)(`div`,{style:{background:A.s2,border:`1px solid ${A.border}`,borderRadius:12,padding:`14px 16px`,textAlign:`left`},children:[(0,x.jsx)(`div`,{style:{fontSize:13,color:A.gold2,fontWeight:700,marginBottom:8},children:`📱 iPhone (Safari로 열기)`}),(0,x.jsxs)(`div`,{style:{fontSize:12,color:A.cream3,lineHeight:1.9},children:[`우측 하단 `,(0,x.jsx)(`span`,{style:{color:A.gold,fontWeight:700},children:`···`}),` 버튼`,(0,x.jsx)(`br`,{}),`→ `,(0,x.jsx)(`span`,{style:{color:A.gold,fontWeight:700},children:`Safari로 열기`}),` 선택`]})]}),(0,x.jsx)(`div`,{style:{height:10}}),(0,x.jsxs)(`div`,{style:{background:A.s2,border:`1px solid ${A.border}`,borderRadius:12,padding:`14px 16px`,textAlign:`left`},children:[(0,x.jsx)(`div`,{style:{fontSize:13,color:A.gold2,fontWeight:700,marginBottom:8},children:`🤖 Android (Chrome으로 열기)`}),(0,x.jsxs)(`div`,{style:{fontSize:12,color:A.cream3,lineHeight:1.9},children:[`우측 상단 `,(0,x.jsx)(`span`,{style:{color:A.gold,fontWeight:700},children:`···`}),` 버튼`,(0,x.jsx)(`br`,{}),`→ `,(0,x.jsx)(`span`,{style:{color:A.gold,fontWeight:700},children:`외부 브라우저로 열기`}),` 선택`]})]})]}),(0,x.jsx)(`div`,{style:{fontSize:11,color:A.cream3,opacity:.6},children:`Safari · Chrome 권장`})]})]}):o?(0,x.jsxs)(`div`,{className:`app`,children:[(0,x.jsx)(`style`,{children:O(A,Me)}),(0,x.jsxs)(`div`,{style:{minHeight:`100vh`,display:`flex`,flexDirection:`column`,alignItems:`center`,justifyContent:`center`,gap:16},children:[(0,x.jsx)(`div`,{style:{fontSize:48,filter:`drop-shadow(0 0 20px rgba(200,128,26,0.4))`},children:`✝`}),(0,x.jsx)(`div`,{style:{fontFamily:`'Cinzel',serif`,fontSize:10,letterSpacing:`0.32em`,color:A.gold,textTransform:`uppercase`},children:`신대중앙교회`}),(0,x.jsx)(`div`,{style:{width:36,height:36,border:`2px solid ${A.border}`,borderTopColor:A.gold2,borderRadius:`50%`,animation:`spin 0.8s linear infinite`}})]})]}):i?(0,x.jsxs)(`div`,{className:`app`,children:[(0,x.jsx)(`style`,{children:O(A,Me)}),(0,x.jsxs)(`div`,{className:`app-inner`,children:[T!==`idle`&&u!==`reading`&&(0,x.jsxs)(`div`,{className:`global-tts-bar`,children:[(0,x.jsxs)(`div`,{className:`global-tts-info`,children:[(0,x.jsx)(`div`,{className:`global-tts-lbl`,children:T===`playing`?`음성 읽기 중`:`일시 정지됨`}),(0,x.jsx)(`div`,{className:`global-tts-txt`,children:Ye?`${Ye.book} ${Ye.ch}장 ${Ye.vn}절`:ie[f]?.[0]||``})]}),(0,x.jsx)(`button`,{className:`global-tts-play`,onClick:ze,children:T===`playing`?`⏸`:`▶`}),(0,x.jsx)(`button`,{className:`global-tts-stop`,onClick:Ve,children:`■`})]}),ee&&(0,x.jsx)(`div`,{className:`overlay`,onClick:e=>{e.target===e.currentTarget&&S(!1)},children:(0,x.jsxs)(`div`,{className:`sheet`,children:[(0,x.jsx)(`div`,{className:`sheet-handle`}),(0,x.jsxs)(`div`,{className:`sheet-section`,children:[(0,x.jsx)(`div`,{className:`sheet-label`,children:`👤 내 정보`}),(0,x.jsxs)(`div`,{className:`name-edit-row`,children:[(0,x.jsx)(`input`,{className:`name-input`,value:c,onChange:e=>l(e.target.value),placeholder:`이름`,onKeyDown:e=>{e.key===`Enter`&&Ke()}}),(0,x.jsx)(`button`,{className:`name-save-btn`,onClick:Ke,children:`저장`})]}),(0,x.jsx)(`div`,{style:{marginTop:10,display:`flex`,gap:8},children:[{id:`thu`,icon:`🌿`,label:`목요팀`},{id:`sun`,icon:`☀️`,label:`일요팀`}].map(({id:t,icon:i,label:a})=>(0,x.jsxs)(`div`,{className:`team-opt${n===t?` on-${t}`:``}`,style:{flex:1,padding:`10px 8px`},onClick:async()=>{r(t),ke(`sindae-myteam`,t),le(e,t,m)},children:[(0,x.jsx)(`span`,{className:`team-opt-icon`,style:{fontSize:20},children:i}),(0,x.jsx)(`div`,{className:`team-opt-label`,style:{fontSize:Me.small},children:a})]},t))})]}),(0,x.jsxs)(`div`,{className:`sheet-section`,children:[(0,x.jsx)(`div`,{className:`sheet-label`,children:`🌓 화면 밝기`}),(0,x.jsx)(`div`,{className:`theme-row`,children:[{id:`dark`,icon:`🌙`,label:`어두운`,sub:`야간 모드`},{id:`light`,icon:`☀️`,label:`밝은`,sub:`낮에 읽기`}].map(({id:e,icon:t,label:n,sub:r})=>(0,x.jsxs)(`div`,{className:`theme-btn${C===e?` on`:``}`,onClick:()=>We(e),children:[(0,x.jsx)(`span`,{className:`theme-btn-icon`,children:t}),(0,x.jsx)(`div`,{className:`theme-btn-label`,children:n}),(0,x.jsx)(`div`,{className:`theme-btn-sub`,children:r})]},e))})]}),(0,x.jsxs)(`div`,{className:`sheet-section`,style:{marginBottom:0},children:[(0,x.jsx)(`div`,{className:`sheet-label`,children:`가 글씨 크기`}),(0,x.jsx)(`div`,{className:`fontsize-row`,children:[{id:`normal`,label:`기본`,size:15},{id:`large`,label:`크게`,size:20},{id:`xlarge`,label:`매우 크게`,size:25}].map(({id:e,label:t,size:n})=>(0,x.jsxs)(`div`,{className:`fs-btn${se===e?` on`:``}`,onClick:()=>Ge(e),children:[(0,x.jsx)(`span`,{className:`fs-btn-sample`,style:{fontSize:n},children:`가나다`}),(0,x.jsx)(`div`,{className:`fs-btn-label`,children:t})]},e))})]})]})}),(0,x.jsxs)(`header`,{className:`hdr`,children:[(0,x.jsx)(`div`,{style:{width:32}}),(0,x.jsxs)(`div`,{className:`hdr-center`,children:[(0,x.jsx)(`div`,{className:`hdr-sub`,children:`신대중앙교회 · 표준새번역`}),(0,x.jsx)(`div`,{className:`hdr-title`,children:`신약의 삶`})]}),(0,x.jsxs)(`div`,{style:{display:`flex`,alignItems:`center`,gap:5},children:[(0,x.jsxs)(`span`,{className:`hdr-badge ${n}`,children:[D[n]?.emoji,` `,D[n]?.label]}),(0,x.jsx)(`button`,{className:`hdr-icon-btn`,onClick:()=>S(!0),children:`⚙️`})]})]}),u===`home`&&(0,x.jsxs)(`div`,{className:`content`,children:[(0,x.jsxs)(`div`,{className:`today-card`,children:[(0,x.jsx)(`div`,{className:`tc-badge`,children:`✦ 오늘의 말씀`}),(0,x.jsxs)(`div`,{className:`tc-day`,children:[Pe+1,`일차`]}),(0,x.jsxs)(`div`,{className:`tc-week`,children:[Math.floor(Pe/7)+1,`주차 · `,ae[Math.floor(Pe/7)]]}),(0,x.jsx)(`div`,{className:`tc-passage`,children:ie[Pe][0]}),(0,x.jsx)(`button`,{className:`rbtn`,onClick:()=>Ie(Pe),children:`📖 말씀 읽기 시작`})]}),(0,x.jsxs)(`div`,{className:`streak-row`,children:[(0,x.jsxs)(`div`,{className:`sbadge`,children:[(0,x.jsx)(`span`,{className:`sbadge-icon`,children:`🕯️`}),(0,x.jsx)(`span`,{className:`sbadge-val`,children:m.length}),(0,x.jsx)(`span`,{className:`sbadge-lbl`,children:`완독 일수`})]}),(0,x.jsxs)(`div`,{className:`sbadge`,children:[(0,x.jsx)(`span`,{className:`sbadge-icon`,children:`📖`}),(0,x.jsx)(`span`,{className:`sbadge-val`,children:63-m.length}),(0,x.jsx)(`span`,{className:`sbadge-lbl`,children:`남은 일수`})]}),(0,x.jsxs)(`div`,{className:`sbadge`,children:[(0,x.jsx)(`span`,{className:`sbadge-icon`,children:`✦`}),(0,x.jsxs)(`span`,{className:`sbadge-val`,children:[qe,`%`]}),(0,x.jsx)(`span`,{className:`sbadge-lbl`,children:`진행률`})]})]}),(0,x.jsxs)(`div`,{className:`prog-sect`,children:[(0,x.jsx)(`div`,{className:`sttl`,children:`전체 진행 · 63일`}),(0,x.jsxs)(`div`,{className:`prog-row`,children:[(0,x.jsxs)(`div`,{children:[(0,x.jsxs)(`div`,{className:`prog-nums`,children:[m.length,(0,x.jsx)(`span`,{style:{fontSize:13,color:A.cream3},children:`/63`})]}),(0,x.jsx)(`div`,{className:`prog-of`,children:`일 완독`})]}),(0,x.jsx)(`div`,{className:`pbar-bg`,children:(0,x.jsx)(`div`,{className:`pbar-fill`,style:{width:`${qe}%`}})})]}),(0,x.jsx)(`div`,{className:`week-dots`,children:Array.from({length:63},(e,t)=>(0,x.jsx)(`div`,{className:`wd${m.includes(t)?` done`:t===Pe?` cur`:``}`,title:`${t+1}일차`},t))})]}),(0,x.jsxs)(`div`,{className:`motiv`,children:[(0,x.jsx)(`span`,{className:`motiv-mark`,children:`❝`}),oe[Pe%oe.length]]})]}),u===`schedule`&&(0,x.jsx)(`div`,{className:`content`,children:(0,x.jsx)(`div`,{className:`schedule-grid`,children:Array.from({length:9},(e,t)=>{let n=w(t*7,Math.min(t*7+6,62)),r=n.filter(e=>m.includes(e)).length;return(0,x.jsxs)(`div`,{className:`week-block`,children:[(0,x.jsxs)(`div`,{className:`wk-hdr`,children:[(0,x.jsxs)(`span`,{className:`wk-num`,children:[`WEEK `,t+1]}),(0,x.jsx)(`span`,{className:`wk-sub`,children:ae[t]}),(0,x.jsxs)(`span`,{className:`wk-prog`,children:[r,`/`,n.length]})]}),n.map(e=>{let t=m.includes(e),n=e===Pe;return(0,x.jsxs)(`div`,{className:`day-row${n?` today-row`:``}`,onClick:()=>Ie(e),children:[(0,x.jsx)(`div`,{className:`dnum${t?` done`:n?` today`:``}`,children:t?`✓`:e+1}),(0,x.jsx)(`div`,{className:`dtext${t?` done`:``}`,children:ie[e][0]}),t&&(0,x.jsx)(`span`,{className:`dcheck`,children:`✓`})]},e)})]},t)})})}),u===`reading`&&f!==null&&(0,x.jsxs)(x.Fragment,{children:[(0,x.jsxs)(`div`,{className:`rdg-topbar`,children:[(0,x.jsx)(`button`,{className:`back-btn`,onClick:()=>{Ve(),d(`home`)},children:`←`}),(0,x.jsxs)(`div`,{className:`rdg-info`,children:[(0,x.jsxs)(`div`,{className:`rdg-dlbl`,children:[Ze,` · 표준새번역`]}),(0,x.jsx)(`div`,{className:`rdg-dtitle`,children:ie[f][0]})]})]}),(0,x.jsx)(`div`,{className:`verses-wrap`,children:(()=>{let e=[],t=null,n=null;return g.forEach((r,i)=>{(r.book!==t||r.ch!==n)&&(e.push((0,x.jsxs)(`div`,{className:`ch-heading`,children:[r.book,` `,r.ch,`장`]},`h${r.book}${r.ch}`)),t=r.book,n=r.ch),e.push((0,x.jsxs)(`div`,{ref:e=>{Te.current[i]=e},className:`verse-item${me===i?` active`:``}`,onClick:()=>{Ve(),setTimeout(()=>Re(i),50)},children:[(0,x.jsx)(`span`,{className:`vnum`,children:r.vn}),(0,x.jsx)(`span`,{className:`vtext`,children:r.text})]},r.id))}),e})()}),g.length>0&&(0,x.jsxs)(`div`,{className:`tts-bar${T===`playing`?` playing`:``}`,children:[(0,x.jsxs)(`div`,{className:`tts-now`,children:[(0,x.jsx)(`div`,{className:`tts-dot${T===`playing`?` on`:``}`}),(0,x.jsx)(`span`,{className:`tts-now-txt`,children:T===`idle`?`절을 탭하거나 ▶ 버튼으로 시작`:Ye?`${Ye.book} ${Ye.ch}장 ${Ye.vn}절`:`읽는 중…`})]}),(0,x.jsxs)(`div`,{className:`tts-ctrl`,children:[(0,x.jsx)(`button`,{className:`tts-skip`,onClick:()=>Be(-1),children:`⏮`}),(0,x.jsx)(`button`,{className:`tts-play`,onClick:ze,children:T===`playing`?`⏸`:`▶`}),(0,x.jsx)(`button`,{className:`tts-skip`,onClick:()=>Be(1),children:`⏭`}),(0,x.jsxs)(`div`,{className:`prog-wrap`,children:[(0,x.jsx)(`div`,{className:`prog-track`,children:(0,x.jsx)(`div`,{className:`prog-fill`,style:{width:`${Je}%`}})}),(0,x.jsxs)(`div`,{className:`prog-lbl`,children:[Je,`% · `,v[ge]?.label,` · `,g.length,`절`]})]})]}),(0,x.jsxs)(`div`,{className:`tts-bottom`,children:[(0,x.jsx)(`span`,{className:`rate-lbl`,children:`속도`}),[{v:.75,l:`느리게`},{v:.85,l:`보통`},{v:1,l:`빠르게`},{v:1.15,l:`1.15×`}].map(({v:e,l:t})=>(0,x.jsx)(`button`,{className:`ratebtn${ve===e?` on`:``}`,onClick:()=>He(e),children:t},e)),(0,x.jsx)(`button`,{className:`done-btn${m.includes(f)?` already`:``}`,onClick:()=>{Ue(f),Ve(),d(`home`)},children:m.includes(f)?`✓ 완료`:`완독 ✓`})]})]})]}),(0,x.jsxs)(`nav`,{className:`nav`,children:[(0,x.jsxs)(`button`,{className:`nbtn${u===`home`?` on`:``}`,onClick:()=>{Ve(),d(`home`)},children:[(0,x.jsx)(`span`,{className:`ni`,children:`✦`}),(0,x.jsx)(`span`,{children:`오늘`})]}),(0,x.jsxs)(`button`,{className:`nbtn${u===`schedule`?` on`:``}`,onClick:()=>{Ve(),d(`schedule`)},children:[(0,x.jsx)(`span`,{className:`ni`,children:`≡`}),(0,x.jsx)(`span`,{children:`일정표`})]})]})]})]}):(0,x.jsxs)(`div`,{className:`app`,children:[(0,x.jsx)(`style`,{children:O(A,Me)}),(0,x.jsxs)(`div`,{className:`onboard`,children:[(0,x.jsx)(`div`,{className:`ob-cross`,children:`✝`}),(0,x.jsx)(`div`,{className:`ob-church`,children:`Sindae Joongang Church`}),(0,x.jsx)(`div`,{className:`ob-title`,children:`신대중앙교회 신약의 삶`}),(0,x.jsxs)(`div`,{className:`ob-card`,children:[(0,x.jsx)(`div`,{className:`ob-label`,children:`이름`}),(0,x.jsx)(`input`,{className:`ob-input`,placeholder:`이름을 입력하세요`,value:c,onChange:e=>l(e.target.value),onKeyDown:e=>{e.key===`Enter`&&n&&je(n)}}),(0,x.jsx)(`div`,{className:`ob-label`,children:`팀 선택`}),(0,x.jsx)(`div`,{className:`team-row`,children:[{id:`thu`,icon:`🌿`,label:`목요팀`,sub:`목요일 모임`},{id:`sun`,icon:`☀️`,label:`일요팀`,sub:`일요일 모임`}].map(({id:e,icon:t,label:i,sub:a})=>(0,x.jsxs)(`div`,{className:`team-opt${n===e?` on-${e}`:``}`,onClick:()=>r(e),children:[(0,x.jsx)(`span`,{className:`team-opt-icon`,children:t}),(0,x.jsx)(`div`,{className:`team-opt-label`,children:i}),(0,x.jsx)(`div`,{className:`team-opt-sub`,children:a})]},e))}),(0,x.jsx)(`button`,{className:`ob-btn`,disabled:!c.trim()||!n,onClick:()=>je(n),children:`말씀 읽기 시작하기 →`})]})]})]})}var me=`마태복음 1–4장.마태복음 5–8장.마태복음 9–12장.마태복음 13–16장.마태복음 17–20장.마태복음 21–24장.마태복음 25–28장 · 마가복음 1장.마가복음 2–5장.마가복음 6–9장.마가복음 10–13장.마가복음 14–16장 · 누가복음 1장.누가복음 2–5장.누가복음 6–9장.누가복음 10–13장.누가복음 14–17장.누가복음 18–21장.누가복음 22–24장 · 요한복음 1장.요한복음 2–5장.요한복음 6–9장.요한복음 10–13장.요한복음 14–17장.요한복음 18–21장 · 사도행전 1장.사도행전 2–5장.사도행전 6–9장.사도행전 10–13장.사도행전 14–17장.사도행전 18–21장.사도행전 22–25장.사도행전 26–28장 · 로마서 1–2장.로마서 3–6장.로마서 7–10장.로마서 11–14장.로마서 15–16장 · 고린도전서 1–2장.고린도전서 3–6장.고린도전서 7–10장.고린도전서 11–14장.고린도전서 15–16장 · 고린도후서 1–2장.고린도후서 3–6장.고린도후서 7–10장.고린도후서 11–13장 · 갈라디아서 1장.갈라디아서 2–5장.갈라디아서 6장 · 에베소서 1–4장.에베소서 5–6장 · 빌립보서 1–2장.빌립보서 3–4장 · 골로새서 1–2장.골로새서 3–4장 · 데살로니가전서 1–2장.데살로니가전서 3–5장 · 데살로니가후서 1장.데살로니가후서 2–3장 · 디모데전서 1–2장.디모데전서 3–6장.디모데후서 1–4장.디도서 1–3장 · 빌레몬서 1장 · 히브리서 1–2장.히브리서 3–6장.히브리서 7–10장.히브리서 11–13장 · 야고보서 1–2장.야고보서 3–5장 · 베드로전서 1–2장.베드로전서 3–5장 · 베드로후서 1장.베드로후서 2–3장 · 요한일서 1–2장.요한일서 3–5장.요한이서 1장 · 요한삼서 1장 · 유다서 1장.요한계시록 1–4장.요한계시록 5–8장.요한계시록 9–12장.요한계시록 13–16장.요한계시록 17–22장`.split(`.`),he={apiKey:`AIzaSyAu9mA5u7BcIqzAiugsYvC5dTImwctihN4`,databaseURL:`https://sindae-bible-default-rtdb.asia-southeast1.firebasedatabase.app`,projectId:`sindae-bible`,appId:`1:435330757852:web:a9bd689a703d9146887019`},ge=`
+`}function k(){let[e,t]=(0,y.useState)(``),[n,r]=(0,y.useState)(``),[i,a]=(0,y.useState)(!1),[o,s]=(0,y.useState)(!0),[c,l]=(0,y.useState)(``),[u,d]=(0,y.useState)(`home`),[f,p]=(0,y.useState)(null),[m,h]=(0,y.useState)([]),[g,_]=(0,y.useState)([]),[v,b]=(0,y.useState)([]),[ee,S]=(0,y.useState)(!1),[C,te]=(0,y.useState)(`dark`),[se,ce]=(0,y.useState)(`normal`),[T,k]=(0,y.useState)(`idle`),[me,he]=(0,y.useState)(-1),[ge,_e]=(0,y.useState)(0),[ve,ye]=(0,y.useState)(.85),be=(0,y.useRef)(window.speechSynthesis),xe=(0,y.useRef)(!1),Se=(0,y.useRef)([]),Ce=(0,y.useRef)(0),we=(0,y.useRef)(.85),Te=(0,y.useRef)({}),Ee=(0,y.useRef)(null),De=(0,y.useRef)(-1),Oe=e=>{try{return localStorage.getItem(e)}catch{return null}},ke=(e,t)=>{try{localStorage.setItem(e,t)}catch{}};(0,y.useEffect)(()=>{try{let e=Oe(`sindae-myname`);e&&(t(e),l(e))}catch{}try{let e=Oe(`sindae-myteam`);e&&(r(e),a(!0))}catch{}try{let e=Oe(`sindae-progress`);e&&h(JSON.parse(e))}catch{}try{let e=Oe(`sindae-theme`);e&&te(e)}catch{}try{let e=Oe(`sindae-fontsize`);e&&ce(e)}catch{}try{let e=Oe(`sindae-rate2`);if(e){let t=parseFloat(e);ye(t),we.current=t}}catch{}return s(!1),window.speechSynthesis.onvoiceschanged=()=>{},()=>be.current?.cancel()},[]);let Ae=(0,y.useCallback)(async(e,t,n)=>{try{let r=window.FIREBASE_CONFIG;if(!r)return;let i=`${r.dbUrl}/members/${encodeURIComponent(e)}.json`;await fetch(i,{method:`PUT`,headers:{"Content-Type":`application/json`},body:JSON.stringify({name:e,team:t,completed:n,updatedAt:Date.now()})})}catch{}},[]);(0,y.useCallback)((e,t,n)=>{Ae(e,t,n)},[Ae]);let je=e=>{let n=c.trim();n&&(t(n),r(e),a(!0),ke(`sindae-myname`,n),ke(`sindae-myteam`,e),le(n,e,m))},A=ue[C],Me=de[se],Ne=t=>{ke(`sindae-progress`,JSON.stringify(t)),le(e,n,t)},Pe=(()=>{for(let e=0;e<63;e++)if(!m.includes(e))return e;return 62})(),Fe=(0,y.useCallback)(e=>{let[,t]=ie[e],n=[];for(let{b:e,c:r}of t){let t=re[e];for(let i of r){let r=ne[t]?.[i]||{};Object.keys(r).map(Number).sort((e,t)=>e-t).forEach(a=>n.push({id:`${t}-${i}-${a}`,book:e,ch:i,vn:a,text:r[a]}))}}return n},[]),Ie=e=>{Ve(),p(e),Ee.current=e,he(-1),De.current=-1,_e(0),Ce.current=0,d(`reading`);let t=Fe(e),n=pe(t);_(t),Se.current=n,b(n)},Le=e=>{let t=Se.current[e];if(!t||!xe.current)return;Ce.current=e,_e(e);let n=be.current,r=t.verses.map(({verse:e})=>e.text).join(` `),i=new SpeechSynthesisUtterance(r);i.lang=`ko-KR`,i.rate=we.current,i.pitch=1;let a=fe();a&&(i.voice=a);let o=t.firstIdx;he(o),De.current=o;let s=Te.current[o];s&&s.scrollIntoView({behavior:`smooth`,block:`center`}),t.verses.map(e=>e.verse.text);let c=0,l=[];for(let{verse:e,idx:n}of t.verses)l.push({start:c,idx:n}),c+=e.text.length+1;i.onboundary=e=>{if(e.name!==`word`)return;let t=e.charIndex,n=l[0].idx;for(let e of l)if(t>=e.start)n=e.idx;else break;if(n!==De.current){he(n),De.current=n;let e=Te.current[n];e&&e.scrollIntoView({behavior:`smooth`,block:`center`})}},i.onend=()=>{xe.current?Le(e+1):k(`idle`)},i.onerror=t=>{t.error!==`interrupted`&&xe.current&&Le(e+1)},n.speak(i)},Re=(e=0)=>{be.current?.cancel(),xe.current=!0,k(`playing`);let t=0;for(let n=0;n<Se.current.length;n++)Se.current[n].verses.some(t=>t.idx<=e)&&(t=n);Le(t)},ze=()=>{T===`idle`?Re(De.current>=0?De.current:0):T===`playing`?(be.current?.pause(),k(`paused`),xe.current=!1):T===`paused`&&(be.current?.resume(),k(`playing`),xe.current=!0)},Be=e=>{let t=Math.max(0,Math.min(Se.current.length-1,Ce.current+e));Ve(),setTimeout(()=>{xe.current=!0,k(`playing`),Le(t)},60)},Ve=()=>{be.current?.cancel(),xe.current=!1,k(`idle`),he(-1),De.current=-1},He=async e=>{if(we.current=e,ye(e),ke(`sindae-rate2`,String(e)),T!==`idle`){Ce.current;let e=De.current;Ve(),setTimeout(()=>{xe.current=!0,k(`playing`);let t=0;for(let n=0;n<Se.current.length;n++)Se.current[n].verses.some(t=>t.idx<=Math.max(e,0))&&(t=n);Le(t)},80)}},Ue=e=>{if(m.includes(e))return;let t=[...m,e];h(t),Ne(t)},We=e=>{te(e),ke(`sindae-theme`,e)},Ge=e=>{ce(e),ke(`sindae-fontsize`,e)},Ke=()=>{let r=c.trim();r&&(E(e),t(r),ke(`sindae-myname`,r),le(r,n,m),S(!1))},qe=Math.round(m.length/63*100),Je=g.length>0?Math.round((me+1)/g.length*100):0,Ye=g[me],Xe=f===null?0:Math.floor(f/7),Ze=f===null?``:`${Xe+1}주차 ${f%7+1}일차`;return/KAKAOTALK/i.test(navigator.userAgent)?(0,x.jsxs)(`div`,{className:`app`,children:[(0,x.jsx)(`style`,{children:O(A,Me)}),(0,x.jsxs)(`div`,{style:{minHeight:`100vh`,display:`flex`,flexDirection:`column`,alignItems:`center`,justifyContent:`center`,padding:32,textAlign:`center`,gap:20,background:A.bg},children:[(0,x.jsx)(`div`,{style:{fontSize:52,filter:`drop-shadow(0 0 24px rgba(200,128,26,0.5))`},children:`✝`}),(0,x.jsx)(`div`,{style:{fontFamily:`'Cinzel',serif`,fontSize:10,letterSpacing:`0.3em`,color:A.gold,textTransform:`uppercase`},children:`신대중앙교회 신약의 삶`}),(0,x.jsxs)(`div`,{style:{background:A.s1,border:`1px solid ${A.borderl}`,borderRadius:20,padding:`28px 24px`,maxWidth:360,width:`100%`,boxShadow:`0 0 40px rgba(200,128,26,0.1)`},children:[(0,x.jsxs)(`div`,{style:{fontSize:22,fontWeight:700,color:A.cream,marginBottom:12,lineHeight:1.4},children:[`외부 브라우저로`,(0,x.jsx)(`br`,{}),`열어주세요`]}),(0,x.jsxs)(`div`,{style:{fontSize:14,color:A.cream2,lineHeight:2,marginBottom:22},children:[`카카오톡 안에서는`,(0,x.jsx)(`br`,{}),`읽기 기록이 저장되지 않아요.`,(0,x.jsx)(`br`,{}),(0,x.jsx)(`br`,{}),`아래 방법으로 열어주세요 👇`]}),(0,x.jsxs)(`div`,{style:{background:A.s2,border:`1px solid ${A.border}`,borderRadius:12,padding:`14px 16px`,textAlign:`left`},children:[(0,x.jsx)(`div`,{style:{fontSize:13,color:A.gold2,fontWeight:700,marginBottom:8},children:`📱 iPhone (Safari로 열기)`}),(0,x.jsxs)(`div`,{style:{fontSize:12,color:A.cream3,lineHeight:1.9},children:[`우측 하단 `,(0,x.jsx)(`span`,{style:{color:A.gold,fontWeight:700},children:`···`}),` 버튼`,(0,x.jsx)(`br`,{}),`→ `,(0,x.jsx)(`span`,{style:{color:A.gold,fontWeight:700},children:`Safari로 열기`}),` 선택`]})]}),(0,x.jsx)(`div`,{style:{height:10}}),(0,x.jsxs)(`div`,{style:{background:A.s2,border:`1px solid ${A.border}`,borderRadius:12,padding:`14px 16px`,textAlign:`left`},children:[(0,x.jsx)(`div`,{style:{fontSize:13,color:A.gold2,fontWeight:700,marginBottom:8},children:`🤖 Android (Chrome으로 열기)`}),(0,x.jsxs)(`div`,{style:{fontSize:12,color:A.cream3,lineHeight:1.9},children:[`우측 상단 `,(0,x.jsx)(`span`,{style:{color:A.gold,fontWeight:700},children:`···`}),` 버튼`,(0,x.jsx)(`br`,{}),`→ `,(0,x.jsx)(`span`,{style:{color:A.gold,fontWeight:700},children:`외부 브라우저로 열기`}),` 선택`]})]})]}),(0,x.jsx)(`div`,{style:{fontSize:11,color:A.cream3,opacity:.6},children:`Safari · Chrome 권장`})]})]}):o?(0,x.jsxs)(`div`,{className:`app`,children:[(0,x.jsx)(`style`,{children:O(A,Me)}),(0,x.jsxs)(`div`,{style:{minHeight:`100vh`,display:`flex`,flexDirection:`column`,alignItems:`center`,justifyContent:`center`,gap:16},children:[(0,x.jsx)(`div`,{style:{fontSize:48,filter:`drop-shadow(0 0 20px rgba(200,128,26,0.4))`},children:`✝`}),(0,x.jsx)(`div`,{style:{fontFamily:`'Cinzel',serif`,fontSize:10,letterSpacing:`0.32em`,color:A.gold,textTransform:`uppercase`},children:`신대중앙교회`}),(0,x.jsx)(`div`,{style:{width:36,height:36,border:`2px solid ${A.border}`,borderTopColor:A.gold2,borderRadius:`50%`,animation:`spin 0.8s linear infinite`}})]})]}):i?(0,x.jsxs)(`div`,{className:`app`,children:[(0,x.jsx)(`style`,{children:O(A,Me)}),(0,x.jsxs)(`div`,{className:`app-inner`,children:[T!==`idle`&&u!==`reading`&&(0,x.jsxs)(`div`,{className:`global-tts-bar`,children:[(0,x.jsxs)(`div`,{className:`global-tts-info`,children:[(0,x.jsx)(`div`,{className:`global-tts-lbl`,children:T===`playing`?`음성 읽기 중`:`일시 정지됨`}),(0,x.jsx)(`div`,{className:`global-tts-txt`,children:Ye?`${Ye.book} ${Ye.ch}장 ${Ye.vn}절`:ie[f]?.[0]||``})]}),(0,x.jsx)(`button`,{className:`global-tts-play`,onClick:ze,children:T===`playing`?`⏸`:`▶`}),(0,x.jsx)(`button`,{className:`global-tts-stop`,onClick:Ve,children:`■`})]}),ee&&(0,x.jsx)(`div`,{className:`overlay`,onClick:e=>{e.target===e.currentTarget&&S(!1)},children:(0,x.jsxs)(`div`,{className:`sheet`,children:[(0,x.jsx)(`div`,{className:`sheet-handle`}),(0,x.jsxs)(`div`,{className:`sheet-section`,children:[(0,x.jsx)(`div`,{className:`sheet-label`,children:`👤 내 정보`}),(0,x.jsxs)(`div`,{className:`name-edit-row`,children:[(0,x.jsx)(`input`,{className:`name-input`,value:c,onChange:e=>l(e.target.value),placeholder:`이름`,onKeyDown:e=>{e.key===`Enter`&&Ke()}}),(0,x.jsx)(`button`,{className:`name-save-btn`,onClick:Ke,children:`저장`})]}),(0,x.jsx)(`div`,{style:{marginTop:10,display:`flex`,gap:8},children:[{id:`thu`,icon:`🌿`,label:`목요팀`},{id:`sun`,icon:`☀️`,label:`일요팀`}].map(({id:t,icon:i,label:a})=>(0,x.jsxs)(`div`,{className:`team-opt${n===t?` on-${t}`:``}`,style:{flex:1,padding:`10px 8px`},onClick:async()=>{r(t),ke(`sindae-myteam`,t),le(e,t,m)},children:[(0,x.jsx)(`span`,{className:`team-opt-icon`,style:{fontSize:20},children:i}),(0,x.jsx)(`div`,{className:`team-opt-label`,style:{fontSize:Me.small},children:a})]},t))})]}),(0,x.jsxs)(`div`,{className:`sheet-section`,children:[(0,x.jsx)(`div`,{className:`sheet-label`,children:`🌓 화면 밝기`}),(0,x.jsx)(`div`,{className:`theme-row`,children:[{id:`dark`,icon:`🌙`,label:`어두운`,sub:`야간 모드`},{id:`light`,icon:`☀️`,label:`밝은`,sub:`낮에 읽기`}].map(({id:e,icon:t,label:n,sub:r})=>(0,x.jsxs)(`div`,{className:`theme-btn${C===e?` on`:``}`,onClick:()=>We(e),children:[(0,x.jsx)(`span`,{className:`theme-btn-icon`,children:t}),(0,x.jsx)(`div`,{className:`theme-btn-label`,children:n}),(0,x.jsx)(`div`,{className:`theme-btn-sub`,children:r})]},e))})]}),(0,x.jsxs)(`div`,{className:`sheet-section`,style:{marginBottom:0},children:[(0,x.jsx)(`div`,{className:`sheet-label`,children:`가 글씨 크기`}),(0,x.jsx)(`div`,{className:`fontsize-row`,children:[{id:`normal`,label:`기본`,size:15},{id:`large`,label:`크게`,size:20},{id:`xlarge`,label:`매우 크게`,size:25}].map(({id:e,label:t,size:n})=>(0,x.jsxs)(`div`,{className:`fs-btn${se===e?` on`:``}`,onClick:()=>Ge(e),children:[(0,x.jsx)(`span`,{className:`fs-btn-sample`,style:{fontSize:n},children:`가나다`}),(0,x.jsx)(`div`,{className:`fs-btn-label`,children:t})]},e))})]})]})}),(0,x.jsxs)(`header`,{className:`hdr`,children:[(0,x.jsx)(`div`,{style:{width:32}}),(0,x.jsxs)(`div`,{className:`hdr-center`,children:[(0,x.jsx)(`div`,{className:`hdr-sub`,children:`신대중앙교회 · 표준새번역`}),(0,x.jsx)(`div`,{className:`hdr-title`,children:`신약의 삶`})]}),(0,x.jsxs)(`div`,{style:{display:`flex`,alignItems:`center`,gap:5},children:[(0,x.jsxs)(`span`,{className:`hdr-badge ${n}`,children:[D[n]?.emoji,` `,D[n]?.label]}),(0,x.jsx)(`button`,{className:`hdr-icon-btn`,onClick:()=>S(!0),children:`⚙️`})]})]}),u===`home`&&(0,x.jsxs)(`div`,{className:`content`,children:[(0,x.jsxs)(`div`,{className:`today-card`,children:[(0,x.jsx)(`div`,{className:`tc-badge`,children:`✦ 오늘의 말씀`}),(0,x.jsxs)(`div`,{className:`tc-day`,children:[Pe+1,`일차`]}),(0,x.jsxs)(`div`,{className:`tc-week`,children:[Math.floor(Pe/7)+1,`주차 · `,ae[Math.floor(Pe/7)]]}),(0,x.jsx)(`div`,{className:`tc-passage`,children:ie[Pe][0]}),(0,x.jsx)(`button`,{className:`rbtn`,onClick:()=>Ie(Pe),children:`📖 말씀 읽기 시작`})]}),(0,x.jsxs)(`div`,{className:`streak-row`,children:[(0,x.jsxs)(`div`,{className:`sbadge`,children:[(0,x.jsx)(`span`,{className:`sbadge-icon`,children:`🕯️`}),(0,x.jsx)(`span`,{className:`sbadge-val`,children:m.length}),(0,x.jsx)(`span`,{className:`sbadge-lbl`,children:`완독 일수`})]}),(0,x.jsxs)(`div`,{className:`sbadge`,children:[(0,x.jsx)(`span`,{className:`sbadge-icon`,children:`📖`}),(0,x.jsx)(`span`,{className:`sbadge-val`,children:63-m.length}),(0,x.jsx)(`span`,{className:`sbadge-lbl`,children:`남은 일수`})]}),(0,x.jsxs)(`div`,{className:`sbadge`,children:[(0,x.jsx)(`span`,{className:`sbadge-icon`,children:`✦`}),(0,x.jsxs)(`span`,{className:`sbadge-val`,children:[qe,`%`]}),(0,x.jsx)(`span`,{className:`sbadge-lbl`,children:`진행률`})]})]}),(0,x.jsxs)(`div`,{className:`prog-sect`,children:[(0,x.jsx)(`div`,{className:`sttl`,children:`전체 진행 · 63일`}),(0,x.jsxs)(`div`,{className:`prog-row`,children:[(0,x.jsxs)(`div`,{children:[(0,x.jsxs)(`div`,{className:`prog-nums`,children:[m.length,(0,x.jsx)(`span`,{style:{fontSize:13,color:A.cream3},children:`/63`})]}),(0,x.jsx)(`div`,{className:`prog-of`,children:`일 완독`})]}),(0,x.jsx)(`div`,{className:`pbar-bg`,children:(0,x.jsx)(`div`,{className:`pbar-fill`,style:{width:`${qe}%`}})})]}),(0,x.jsx)(`div`,{className:`week-dots`,children:Array.from({length:63},(e,t)=>(0,x.jsx)(`div`,{className:`wd${m.includes(t)?` done`:t===Pe?` cur`:``}`,title:`${t+1}일차`},t))})]}),(0,x.jsxs)(`div`,{className:`motiv`,children:[(0,x.jsx)(`span`,{className:`motiv-mark`,children:`❝`}),oe[Pe%oe.length]]})]}),u===`schedule`&&(0,x.jsx)(`div`,{className:`content`,children:(0,x.jsx)(`div`,{className:`schedule-grid`,children:Array.from({length:9},(e,t)=>{let n=w(t*7,Math.min(t*7+6,62)),r=n.filter(e=>m.includes(e)).length;return(0,x.jsxs)(`div`,{className:`week-block`,children:[(0,x.jsxs)(`div`,{className:`wk-hdr`,children:[(0,x.jsxs)(`span`,{className:`wk-num`,children:[`WEEK `,t+1]}),(0,x.jsx)(`span`,{className:`wk-sub`,children:ae[t]}),(0,x.jsxs)(`span`,{className:`wk-prog`,children:[r,`/`,n.length]})]}),n.map(e=>{let t=m.includes(e),n=e===Pe;return(0,x.jsxs)(`div`,{className:`day-row${n?` today-row`:``}`,onClick:()=>Ie(e),children:[(0,x.jsx)(`div`,{className:`dnum${t?` done`:n?` today`:``}`,children:t?`✓`:e+1}),(0,x.jsx)(`div`,{className:`dtext${t?` done`:``}`,children:ie[e][0]}),t&&(0,x.jsx)(`span`,{className:`dcheck`,children:`✓`})]},e)})]},t)})})}),u===`reading`&&f!==null&&(0,x.jsxs)(x.Fragment,{children:[(0,x.jsxs)(`div`,{className:`rdg-topbar`,children:[(0,x.jsx)(`button`,{className:`back-btn`,onClick:()=>{Ve(),d(`home`)},children:`←`}),(0,x.jsxs)(`div`,{className:`rdg-info`,children:[(0,x.jsxs)(`div`,{className:`rdg-dlbl`,children:[Ze,` · 표준새번역`]}),(0,x.jsx)(`div`,{className:`rdg-dtitle`,children:ie[f][0]})]})]}),(0,x.jsx)(`div`,{className:`verses-wrap`,children:(()=>{let e=[],t=null,n=null;return g.forEach((r,i)=>{(r.book!==t||r.ch!==n)&&(e.push((0,x.jsxs)(`div`,{className:`ch-heading`,children:[r.book,` `,r.ch,`장`]},`h${r.book}${r.ch}`)),t=r.book,n=r.ch),e.push((0,x.jsxs)(`div`,{ref:e=>{Te.current[i]=e},className:`verse-item${me===i?` active`:``}`,onClick:()=>{Ve(),setTimeout(()=>Re(i),50)},children:[(0,x.jsx)(`span`,{className:`vnum`,children:r.vn}),(0,x.jsx)(`span`,{className:`vtext`,children:r.text})]},r.id))}),e})()}),g.length>0&&(0,x.jsxs)(`div`,{className:`tts-bar${T===`playing`?` playing`:``}`,children:[(0,x.jsxs)(`div`,{className:`tts-now`,children:[(0,x.jsx)(`div`,{className:`tts-dot${T===`playing`?` on`:``}`}),(0,x.jsx)(`span`,{className:`tts-now-txt`,children:T===`idle`?`절을 탭하거나 ▶ 버튼으로 시작`:Ye?`${Ye.book} ${Ye.ch}장 ${Ye.vn}절`:`읽는 중…`})]}),(0,x.jsxs)(`div`,{className:`tts-ctrl`,children:[(0,x.jsx)(`button`,{className:`tts-skip`,onClick:()=>Be(-1),children:`⏮`}),(0,x.jsx)(`button`,{className:`tts-play`,onClick:ze,children:T===`playing`?`⏸`:`▶`}),(0,x.jsx)(`button`,{className:`tts-skip`,onClick:()=>Be(1),children:`⏭`}),(0,x.jsxs)(`div`,{className:`prog-wrap`,children:[(0,x.jsx)(`div`,{className:`prog-track`,children:(0,x.jsx)(`div`,{className:`prog-fill`,style:{width:`${Je}%`}})}),(0,x.jsxs)(`div`,{className:`prog-lbl`,children:[Je,`% · `,v[ge]?.label,` · `,g.length,`절`]})]})]}),(0,x.jsxs)(`div`,{className:`tts-bottom`,children:[(0,x.jsx)(`span`,{className:`rate-lbl`,children:`속도`}),[{v:.75,l:`느리게`},{v:.85,l:`보통`},{v:1,l:`빠르게`},{v:1.15,l:`1.15×`}].map(({v:e,l:t})=>(0,x.jsx)(`button`,{className:`ratebtn${ve===e?` on`:``}`,onClick:()=>He(e),children:t},e)),(0,x.jsx)(`button`,{className:`done-btn${m.includes(f)?` already`:``}`,onClick:()=>{Ue(f),Ve(),d(`home`)},children:m.includes(f)?`✓ 완료`:`완독 ✓`})]})]})]}),(0,x.jsxs)(`nav`,{className:`nav`,children:[(0,x.jsxs)(`button`,{className:`nbtn${u===`home`?` on`:``}`,onClick:()=>{Ve(),d(`home`)},children:[(0,x.jsx)(`span`,{className:`ni`,children:`🏠`}),(0,x.jsx)(`span`,{children:`오늘 말씀`})]}),(0,x.jsxs)(`button`,{className:`nbtn${u===`schedule`?` on`:``}`,onClick:()=>{Ve(),d(`schedule`)},children:[(0,x.jsx)(`span`,{className:`ni`,children:`📅`}),(0,x.jsx)(`span`,{children:`읽기 일정`})]}),(0,x.jsxs)(`button`,{className:`desk-settings-btn`,onClick:()=>S(!0),children:[(0,x.jsx)(`span`,{className:`desk-settings-icon`,children:`⚙️`}),(0,x.jsx)(`span`,{children:`설정`})]})]})]})]}):(0,x.jsxs)(`div`,{className:`app`,children:[(0,x.jsx)(`style`,{children:O(A,Me)}),(0,x.jsxs)(`div`,{className:`onboard`,children:[(0,x.jsx)(`div`,{className:`ob-cross`,children:`✝`}),(0,x.jsx)(`div`,{className:`ob-church`,children:`Sindae Joongang Church`}),(0,x.jsx)(`div`,{className:`ob-title`,children:`신대중앙교회 신약의 삶`}),(0,x.jsxs)(`div`,{className:`ob-card`,children:[(0,x.jsx)(`div`,{className:`ob-label`,children:`이름`}),(0,x.jsx)(`input`,{className:`ob-input`,placeholder:`이름을 입력하세요`,value:c,onChange:e=>l(e.target.value),onKeyDown:e=>{e.key===`Enter`&&n&&je(n)}}),(0,x.jsx)(`div`,{className:`ob-label`,children:`팀 선택`}),(0,x.jsx)(`div`,{className:`team-row`,children:[{id:`thu`,icon:`🌿`,label:`목요팀`,sub:`목요일 모임`},{id:`sun`,icon:`☀️`,label:`일요팀`,sub:`일요일 모임`}].map(({id:e,icon:t,label:i,sub:a})=>(0,x.jsxs)(`div`,{className:`team-opt${n===e?` on-${e}`:``}`,onClick:()=>r(e),children:[(0,x.jsx)(`span`,{className:`team-opt-icon`,children:t}),(0,x.jsx)(`div`,{className:`team-opt-label`,children:i}),(0,x.jsx)(`div`,{className:`team-opt-sub`,children:a})]},e))}),(0,x.jsx)(`button`,{className:`ob-btn`,disabled:!c.trim()||!n,onClick:()=>je(n),children:`말씀 읽기 시작하기 →`})]})]})]})}var me=`마태복음 1–4장.마태복음 5–8장.마태복음 9–12장.마태복음 13–16장.마태복음 17–20장.마태복음 21–24장.마태복음 25–28장 · 마가복음 1장.마가복음 2–5장.마가복음 6–9장.마가복음 10–13장.마가복음 14–16장 · 누가복음 1장.누가복음 2–5장.누가복음 6–9장.누가복음 10–13장.누가복음 14–17장.누가복음 18–21장.누가복음 22–24장 · 요한복음 1장.요한복음 2–5장.요한복음 6–9장.요한복음 10–13장.요한복음 14–17장.요한복음 18–21장 · 사도행전 1장.사도행전 2–5장.사도행전 6–9장.사도행전 10–13장.사도행전 14–17장.사도행전 18–21장.사도행전 22–25장.사도행전 26–28장 · 로마서 1–2장.로마서 3–6장.로마서 7–10장.로마서 11–14장.로마서 15–16장 · 고린도전서 1–2장.고린도전서 3–6장.고린도전서 7–10장.고린도전서 11–14장.고린도전서 15–16장 · 고린도후서 1–2장.고린도후서 3–6장.고린도후서 7–10장.고린도후서 11–13장 · 갈라디아서 1장.갈라디아서 2–5장.갈라디아서 6장 · 에베소서 1–4장.에베소서 5–6장 · 빌립보서 1–2장.빌립보서 3–4장 · 골로새서 1–2장.골로새서 3–4장 · 데살로니가전서 1–2장.데살로니가전서 3–5장 · 데살로니가후서 1장.데살로니가후서 2–3장 · 디모데전서 1–2장.디모데전서 3–6장.디모데후서 1–4장.디도서 1–3장 · 빌레몬서 1장 · 히브리서 1–2장.히브리서 3–6장.히브리서 7–10장.히브리서 11–13장 · 야고보서 1–2장.야고보서 3–5장 · 베드로전서 1–2장.베드로전서 3–5장 · 베드로후서 1장.베드로후서 2–3장 · 요한일서 1–2장.요한일서 3–5장.요한이서 1장 · 요한삼서 1장 · 유다서 1장.요한계시록 1–4장.요한계시록 5–8장.요한계시록 9–12장.요한계시록 13–16장.요한계시록 17–22장`.split(`.`),he={apiKey:`AIzaSyAu9mA5u7BcIqzAiugsYvC5dTImwctihN4`,databaseURL:`https://sindae-bible-default-rtdb.asia-southeast1.firebasedatabase.app`,projectId:`sindae-bible`,appId:`1:435330757852:web:a9bd689a703d9146887019`},ge=`
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Serif+KR:wght@300;400;500;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
