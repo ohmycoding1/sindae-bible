@@ -54,6 +54,41 @@ const SCHEDULE = [
 const WEEK_LABELS = ["마태복음", "마가복음 · 누가복음", "누가복음 · 요한복음", "요한복음 · 사도행전", "사도행전 · 서신서", "고린도서 · 갈라디아서", "에베소서 · 데살로니가서", "히브리서 · 베드로서", "요한서신 · 계시록"];
 const MOTIVATIONS = ["주의 말씀은 내 발의 등불이요, 내 길의 빛입니다", "말씀이 육신이 되어 우리 가운데 사셨다", "하나님의 말씀은 살아 있고 힘이 있습니다", "복 있는 사람은 여호와의 가르침을 기뻐하여", "성경은 우리를 지혜롭게 하여 구원에 이르게 합니다"];
 
+
+/* ── Firebase 설정 ── */
+const FB_CONFIG = {
+  apiKey: "AIzaSyAu9mA5u7BcIqzAiugsYvC5dTImwctihN4",
+  databaseURL: "https://sindae-bible-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "sindae-bible",
+  appId: "1:435330757852:web:a9bd689a703d9146887019",
+};
+let _db = null;
+async function getDB() {
+  if (_db) return _db;
+  try {
+    const { initializeApp, getApps } = await import("firebase/app");
+    const { getDatabase } = await import("firebase/database");
+    const app = getApps().length ? getApps()[0] : initializeApp(FB_CONFIG);
+    _db = getDatabase(app);
+  } catch (e) { console.warn("Firebase init:", e); }
+  return _db;
+}
+async function fbSyncMember(name, team, completed) {
+  if (!name || !team) return;
+  try {
+    const db = await getDB(); if (!db) return;
+    const { ref, set } = await import("firebase/database");
+    await set(ref(db, `members/${name}`), { name, team, completed, updatedAt: Date.now() });
+  } catch (e) { console.warn("fbSync:", e); }
+}
+async function fbDeleteMember(name) {
+  try {
+    const db = await getDB(); if (!db) return;
+    const { ref, remove } = await import("firebase/database");
+    await remove(ref(db, `members/${name}`));
+  } catch (e) { console.warn("fbDelete:", e); }
+}
+
 const TEAMS = {
   thu: { label: "목요팀", emoji: "🌿", color: "#3d6b4c", color2: "#5a9c6c", bg: "rgba(61,107,76,0.12)" },
   sun: { label: "일요팀", emoji: "☀️", color: "#8a6010", color2: "#c8901a", bg: "rgba(200,144,26,0.12)" }
@@ -94,7 +129,254 @@ function makeCSS(t, fs) {
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Serif+KR:wght@300;400;500;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{background:${t.bg};font-family:'Noto Serif KR',serif;}
-.app{background:${t.bg};color:${t.cream};min-height:100vh;max-width:480px;margin:0 auto;overflow-x:hidden;transition:background 0.3s;}
+.app{background:${t.bg};color:${t.cream};min-height:100vh;width:100%;overflow-x:hidden;transition:background 0.3s;}
+
+/* ── 모바일: 기존 레이아웃 ── */
+.app-inner{max-width:480px;margin:0 auto;position:relative;min-height:100vh;background:${t.bg};}
+@media(min-width:520px) and (max-width:767px){
+  .app-inner{box-shadow:0 0 60px rgba(0,0,0,0.4);}
+}
+
+/* ── 데스크탑 레이아웃 (768px+) ── */
+@media(min-width:768px){
+  html,body{background:${t.bg};}
+
+  /* ── 전체 레이아웃: 사이드바 + 메인 ── */
+  .app-inner{
+    max-width:1200px;margin:0 auto;
+    display:grid;
+    grid-template-columns:280px 1fr;
+    min-height:100vh;
+    box-shadow:0 0 80px rgba(0,0,0,0.3);
+  }
+
+  /* ── 사이드바 ── */
+  .hdr{
+    grid-column:1;
+    position:sticky;top:0;height:100vh;
+    flex-direction:column;justify-content:flex-start;align-items:stretch;
+    padding:0;
+    border-bottom:none;border-right:1px solid ${t.border};
+    max-width:280px;width:280px;margin:0;
+    background:${t.s1};
+    overflow-y:auto;
+  }
+
+  /* 사이드바 상단: 교회명 + 앱이름 */
+  .hdr-center{
+    text-align:center;
+    padding:36px 24px 28px;
+    border-bottom:1px solid ${t.border};
+    margin-bottom:0;
+    width:100%;
+  }
+  .hdr-sub{
+    font-size:9px;letter-spacing:0.28em;
+    color:${t.gold};margin-bottom:8px;
+    display:block;
+  }
+  .hdr-title{font-size:20px;line-height:1.4;letter-spacing:0.04em;}
+
+  /* 팀 뱃지 */
+  .hdr-badge{
+    display:inline-block;
+    margin-top:10px;font-size:12px;
+    padding:5px 14px;
+  }
+
+  /* 사이드바 설정 버튼 - 아이콘 버튼 숨기고 사이드바 하단에 표시 */
+  .hdr-icon-btn{display:none;}
+
+  /* ── 사이드바 내비게이션 ── */
+  .nav{
+    position:static;transform:none;
+    flex-direction:column;
+    width:100%;max-width:280px;
+    border-top:none;
+    background:transparent;
+    padding:16px 16px;
+    backdrop-filter:none;
+    flex:1;
+  }
+  .nbtn{
+    flex:none;
+    flex-direction:row;
+    justify-content:flex-start;
+    padding:16px 20px;
+    border-radius:14px;
+    gap:16px;
+    font-size:17px;
+    font-weight:500;
+    margin-bottom:6px;
+    color:${t.cream2};
+    transition:background 0.15s,color 0.15s;
+    letter-spacing:0.02em;
+    width:100%;
+  }
+  .nbtn:hover{background:${t.s2};color:${t.cream};}
+  .nbtn.on{
+    color:${t.gold2};
+    background:linear-gradient(135deg,${t.s2},${t.s3});
+    border-left:3px solid ${t.gold2};
+    padding-left:17px;
+    font-weight:700;
+  }
+  .ni{font-size:26px;flex-shrink:0;}
+
+  /* 사이드바 하단: 설정 버튼 */
+  .nav::after{
+    content:'';display:block;flex:1;
+  }
+  .desk-settings-btn{
+    display:flex!important;
+    align-items:center;gap:14px;
+    padding:16px 20px;margin:0 16px 20px;
+    border-radius:14px;border:1px solid ${t.border};
+    background:none;color:${t.cream3};
+    font-size:15px;font-family:'Noto Serif KR',serif;
+    cursor:pointer;transition:all 0.15s;width:calc(100% - 32px);
+    letter-spacing:0.02em;
+  }
+  .desk-settings-btn:hover{background:${t.s2};color:${t.cream};border-color:${t.borderl};}
+  .desk-settings-icon{font-size:22px;}
+
+  /* ── 메인 콘텐츠 ── */
+  .content{
+    grid-column:2;
+    padding:40px 48px 60px;
+    overflow-y:auto;
+    height:100vh;
+  }
+
+  /* 홈 — 카드 크게 */
+  .today-card{padding:32px 32px;margin-bottom:24px;border-radius:20px;}
+  .tc-badge{font-size:10px;margin-bottom:10px;}
+  .tc-day{font-size:48px;margin-bottom:4px;}
+  .tc-week{font-size:13px;margin-bottom:8px;}
+  .tc-passage{font-size:17px;margin-bottom:24px;line-height:1.7;}
+  .rbtn{padding:16px;font-size:17px;border-radius:14px;}
+
+  /* 통계 뱃지 */
+  .streak-row{gap:16px;margin-bottom:24px;}
+  .sbadge{padding:20px 16px;border-radius:16px;}
+  .sbadge-icon{font-size:28px;}
+  .sbadge-val{font-size:28px;}
+  .sbadge-lbl{font-size:13px;margin-top:4px;}
+
+  /* 진행 섹션 */
+  .prog-sect{margin-bottom:24px;}
+  .sttl{font-size:10px;margin-bottom:12px;}
+  .prog-nums{font-size:28px;}
+  .prog-of{font-size:13px;}
+  .pbar-bg{height:10px;}
+  .wd{height:9px;}
+  .week-dots{gap:5px;margin-top:10px;}
+
+  /* 동기부여 */
+  .motiv{font-size:16px;padding:18px 22px;line-height:2.0;margin-bottom:0;}
+  .motiv-mark{font-size:22px;}
+
+  /* 읽기 화면 */
+  .rdg-topbar{
+    top:0;
+    padding:16px 24px;
+    border-bottom:1px solid ${t.border};
+    position:sticky;
+    background:${t.hdrBg};
+    z-index:80;
+  }
+  .back-btn{width:42px;height:42px;font-size:18px;}
+  .rdg-dlbl{font-size:10px;margin-bottom:2px;}
+  .rdg-dtitle{font-size:17px;}
+  .verses-wrap{padding:32px 40px 140px;max-width:740px;}
+  .ch-heading{font-size:14px;margin:32px 0 18px;padding-bottom:12px;letter-spacing:0.16em;}
+  .ch-heading:first-child{margin-top:0;}
+  .verse-item{padding:10px 14px;margin-bottom:14px;border-radius:12px;gap:14px;}
+  .vnum{font-size:14px;min-width:26px;padding-top:7px;}
+  .vtext{font-size:18px;line-height:2.2;font-weight:300;}
+
+  /* TTS 바 */
+  .tts-bar{
+    position:fixed;
+    left:calc(280px + 24px);
+    width:calc(100% - 280px - 48px);
+    max-width:none;
+    bottom:28px;
+    border-radius:18px;
+    padding:16px 22px 14px;
+    transform:none;
+  }
+  .tts-now{font-size:14px;margin-bottom:12px;}
+  .tts-dot{width:9px;height:9px;}
+  .tts-ctrl{gap:12px;margin-bottom:12px;}
+  .tts-skip{width:44px;height:44px;font-size:17px;}
+  .tts-play{width:60px;height:60px;font-size:26px;}
+  .prog-track{height:5px;}
+  .prog-lbl{font-size:12px;}
+  .tts-bottom{gap:8px;}
+  .rate-lbl{font-size:13px;}
+  .ratebtn{padding:6px 14px;font-size:13px;}
+  .done-btn{padding:8px 18px;font-size:14px;}
+
+  /* 전역 TTS */
+  .global-tts-bar{
+    left:calc(280px + 24px);
+    transform:none;
+    width:calc(100% - 280px - 48px);
+    max-width:none;
+    bottom:28px;
+    padding:14px 20px;
+  }
+  .global-tts-lbl{font-size:13px;}
+  .global-tts-txt{font-size:13px;}
+  .global-tts-play{width:46px;height:46px;font-size:20px;}
+  .global-tts-stop{width:40px;height:40px;font-size:16px;}
+
+  /* 설정 모달 */
+  .overlay{align-items:center;justify-content:center;}
+  .sheet{
+    border-radius:22px;
+    max-width:520px;
+    padding:32px 28px 40px;
+    animation:fadeUp 0.2s ease;
+  }
+  .sheet-label{font-size:11px;margin-bottom:14px;}
+  .theme-btn,.fs-btn{padding:18px 12px;}
+  .theme-btn-icon{font-size:30px;margin-bottom:8px;}
+  .theme-btn-label,.fs-btn-label{font-size:15px;}
+  .theme-btn-sub,.fs-btn-sub{font-size:12px;}
+  .name-input{font-size:16px;padding:13px 16px;}
+  .name-save-btn{font-size:14px;padding:13px 20px;}
+
+  /* 일정표 */
+  .schedule-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .week-block{margin-bottom:0;}
+  .wk-num{font-size:11px;}
+  .wk-sub,.wk-prog{font-size:12px;}
+  .dnum{width:32px;height:32px;font-size:13px;}
+  .dtext{font-size:14px;}
+}
+
+/* 전역 TTS 미니바 */
+.global-tts-bar{position:fixed;bottom:54px;left:50%;transform:translateX(-50%);z-index:95;
+  width:calc(100% - 24px);max-width:456px;
+  background:${t.ttsBg};backdrop-filter:blur(20px);
+  border:1px solid ${t.borderl};border-radius:14px;
+  padding:10px 14px;
+  display:flex;align-items:center;gap:10px;
+  box-shadow:0 -3px 24px rgba(0,0,0,0.15);
+  animation:fadeUp 0.2s ease;
+}
+.global-tts-info{flex:1;min-width:0;}
+.global-tts-lbl{font-size:10px;color:${t.gold};font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:1px;}
+.global-tts-txt{font-size:11px;color:${t.cream3};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.global-tts-stop{width:34px;height:34px;border-radius:50%;background:${t.s2};border:1px solid ${t.border};
+  color:${t.cream2};font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.15s;}
+.global-tts-stop:hover{background:${t.s3};}
+.global-tts-play{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,${t.gold2},${t.gold});
+  border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 14px rgba(160,96,10,0.4);flex-shrink:0;transition:all 0.2s;}
+.global-tts-play:hover{transform:scale(1.06);}
 
 /* 온보딩 */
 .onboard{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;background:radial-gradient(ellipse at 50% 0%,rgba(200,128,26,0.07) 0%,transparent 60%);}
@@ -118,8 +400,10 @@ html,body{background:${t.bg};font-family:'Noto Serif KR',serif;}
 .ob-btn:not(:disabled):hover{transform:translateY(-1px);}
 
 /* 헤더 */
-.hdr{position:sticky;top:0;z-index:100;background:${t.hdrBg};backdrop-filter:blur(12px);border-bottom:1px solid ${t.border};padding:11px 14px 10px;display:flex;align-items:center;justify-content:space-between;}
+.hdr{position:sticky;top:0;z-index:100;background:${t.hdrBg};backdrop-filter:blur(12px);border-bottom:1px solid ${t.border};padding:11px 14px 10px;display:flex;align-items:center;justify-content:space-between;max-width:480px;margin:0 auto;flex-wrap:wrap;}
 .hdr-center{flex:1;text-align:center;}
+.desk-settings-btn{display:none;}
+.desk-settings-icon{font-size:22px;}
 .hdr-sub{font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.28em;color:${t.gold};text-transform:uppercase;margin-bottom:1px;}
 .hdr-title{font-size:16px;font-weight:700;color:${t.cream};}
 .hdr-badge{font-size:10px;padding:3px 9px;border-radius:100px;font-family:'Noto Serif KR',serif;font-weight:600;}
@@ -129,11 +413,11 @@ html,body{background:${t.bg};font-family:'Noto Serif KR',serif;}
 .hdr-icon-btn:hover{border-color:${t.borderl};color:${t.gold};}
 
 /* 하단 내비 */
-.nav{display:flex;background:${t.navBg};border-top:1px solid ${t.border};position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:100;backdrop-filter:blur(12px);}
+.nav{display:flex;background:${t.navBg};border-top:1px solid ${t.border};position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:100;backdrop-filter:blur(12px);box-sizing:border-box;transition:background 0.3s;}
 .nbtn{flex:1;padding:10px 4px 8px;background:none;border:none;color:${t.cream3};cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:${fs.tiny}px;font-family:'Noto Serif KR',serif;transition:color 0.2s;}
 .nbtn.on{color:${t.gold2};}
 .ni{font-size:19px;}
-.content{padding:14px 14px 76px;}
+.content{padding:14px 14px 76px;transition:padding 0.2s;}
 
 /* 홈 */
 .today-card{background:linear-gradient(135deg,${t.s2},${t.s3});border:1px solid ${t.borderl};border-radius:18px;padding:20px 18px;margin-bottom:16px;position:relative;overflow:hidden;box-shadow:0 0 36px rgba(160,96,10,0.1);animation:fadeUp 0.4s ease;}
@@ -303,11 +587,6 @@ export default function App() {
   const [themeName, setThemeName] = useState("dark");
   const [fontSize, setFontSize] = useState("normal");
 
-  // 공동체
-  const [members, setMembers] = useState([]); // [{name,team,completed,updatedAt}]
-  const [commFilter, setCommFilter] = useState("all"); // all|thu|sun
-  const [commLoading, setCommLoading] = useState(false);
-  const [spinning, setSpinning] = useState(false);
 
   // TTS
   const [ttsState, setTtsState] = useState("idle");
@@ -324,73 +603,52 @@ export default function App() {
   const dayIdxRef = useRef(null);
   const activeVRef = useRef(-1);
 
+  /* ── localStorage 헬퍼 ── */
+  const lsGet = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch { } };
+
   /* ── 초기 로드 ── */
   useEffect(() => {
-    (async () => {
-      try { const r = await window.storage.get("sindae-myname"); if (r && r.value) { setMyName(r.value); setNameInput(r.value); } } catch { }
-      try { const r = await window.storage.get("sindae-myteam"); if (r && r.value) { setMyTeam(r.value); setRegistered(true); } } catch { }
-      try { const r = await window.storage.get("sindae-progress"); if (r) setCompleted(JSON.parse(r.value)); } catch { }
-      try { const r = await window.storage.get("sindae-theme"); if (r) setThemeName(r.value); } catch { }
-      try { const r = await window.storage.get("sindae-fontsize"); if (r) setFontSize(r.value); } catch { }
-      try { const r = await window.storage.get("sindae-rate2"); if (r) { const v = parseFloat(r.value); setTtsRate(v); rateRef.current = v; } } catch { }
-      setInitializing(false); // 모든 스토리지 로드 완료
-    })();
-    const init = () => { };
-    window.speechSynthesis.onvoiceschanged = init;
+    try { const v = lsGet("sindae-myname"); if (v) { setMyName(v); setNameInput(v); } } catch { }
+    try { const v = lsGet("sindae-myteam"); if (v) { setMyTeam(v); setRegistered(true); } } catch { }
+    try { const v = lsGet("sindae-progress"); if (v) setCompleted(JSON.parse(v)); } catch { }
+    try { const v = lsGet("sindae-theme"); if (v) setThemeName(v); } catch { }
+    try { const v = lsGet("sindae-fontsize"); if (v) setFontSize(v); } catch { }
+    try { const v = lsGet("sindae-rate2"); if (v) { const r = parseFloat(v); setTtsRate(r); rateRef.current = r; } } catch { }
+    setInitializing(false);
+    window.speechSynthesis.onvoiceschanged = () => { };
     return () => synthRef.current?.cancel();
   }, []);
 
-  /* ── 진행상황 공유 저장 (단일 키 방식) ── */
-  const syncToShared = useCallback(async (name, team, comp) => {
-    if (!name || !team) return;
+  /* ── Firebase 설정 (firebase-config.js에서 가져옴) ── */
+  const firebaseSync = useCallback(async (name, team, comp) => {
     try {
-      // 전체 커뮤니티 데이터를 단일 키로 관리
-      let all = {};
-      try {
-        const r = await window.storage.get("sindae-community", true);
-        if (r) all = JSON.parse(r.value);
-      } catch { }
-      all[name] = { name, team, completed: comp, updatedAt: Date.now() };
-      await window.storage.set("sindae-community", JSON.stringify(all), true);
+      const cfg = window.FIREBASE_CONFIG;
+      if (!cfg) return; // Firebase 미설정 시 스킵
+      const url = `${cfg.dbUrl}/members/${encodeURIComponent(name)}.json`;
+      await fetch(url, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, team, completed: comp, updatedAt: Date.now() }),
+      });
     } catch { }
   }, []);
+  const syncToShared = useCallback((name, team, comp) => { firebaseSync(name, team, comp); }, [firebaseSync]);
 
   /* ── 온보딩 완료 ── */
-  const handleRegister = async (team) => {
-    const n = nameInput.trim();
-    if (!n) return;
+  const handleRegister = (team) => {
+    const n = nameInput.trim(); if (!n) return;
     setMyName(n); setMyTeam(team); setRegistered(true);
-    try {
-      await window.storage.set("sindae-myname", n);
-      await window.storage.set("sindae-myteam", team);
-    } catch { }
-    await syncToShared(n, team, completed);
+    lsSet("sindae-myname", n); lsSet("sindae-myteam", team);
+    fbSyncMember(n, team, completed);
   };
 
-  /* ── 멤버 목록 로드 (단일 키) ── */
-  const loadMembers = async () => {
-    setCommLoading(true); setSpinning(true);
-    try {
-      const r = await window.storage.get("sindae-community", true);
-      if (r) {
-        const all = JSON.parse(r.value);
-        const list = Object.values(all).sort((a, b) => b.completed.length - a.completed.length);
-        setMembers(list);
-      }
-    } catch { }
-    setCommLoading(false);
-    setTimeout(() => setSpinning(false), 600);
-  };
 
-  useEffect(() => { if (view === "community") loadMembers(); }, [view]);
 
   const t = THEMES[themeName];
   const fs = FONT_SIZES[fontSize];
 
-  const saveProgress = async (arr) => {
-    try { await window.storage.set("sindae-progress", JSON.stringify(arr)); } catch { }
-    await syncToShared(myName, myTeam, arr);
-  };
+  const saveProgress = (arr) => { lsSet("sindae-progress", JSON.stringify(arr)); fbSyncMember(myName, myTeam, arr); };
   const todayIdx = (() => { for (let i = 0; i < 63; i++)if (!completed.includes(i)) return i; return 62; })();
 
   const buildVerses = useCallback((dayIdx) => {
@@ -473,29 +731,23 @@ export default function App() {
 
   const changeRate = async (r) => {
     rateRef.current = r; setTtsRate(r);
-    try { await window.storage.set("sindae-rate2", String(r)); } catch { }
+    lsSet("sindae-rate2", String(r));
     if (ttsState !== "idle") { const ci = chIdxRef.current; const av = activeVRef.current; stopTts(); setTimeout(() => { isPlayingRef.current = true; setTtsState("playing"); let c = 0; for (let k = 0; k < chaptersRef.current.length; k++)if (chaptersRef.current[k].verses.some(v => v.idx <= Math.max(av, 0))) c = k; speakChapter(c); }, 80); }
   };
 
-  const markDone = async (dayIdx) => {
+  const markDone = (dayIdx) => {
     if (completed.includes(dayIdx)) return;
-    const arr = [...completed, dayIdx]; setCompleted(arr); await saveProgress(arr);
+    const arr = [...completed, dayIdx]; setCompleted(arr); saveProgress(arr);
   };
 
-  const saveTheme = async (v) => { setThemeName(v); try { await window.storage.set("sindae-theme", v); } catch { } };
-  const saveFontSize = async (v) => { setFontSize(v); try { await window.storage.set("sindae-fontsize", v); } catch { } };
+  const saveTheme = (v) => { setThemeName(v); lsSet("sindae-theme", v); };
+  const saveFontSize = (v) => { setFontSize(v); lsSet("sindae-fontsize", v); };
 
-  const saveNameEdit = async () => {
+  const saveNameEdit = () => {
     const n = nameInput.trim(); if (!n) return;
-    // 기존 키 삭제 후 새 키로 저장
-    setMyName(n);
-    try { await window.storage.set("sindae-myname", n); } catch { }
-    // 기존 이름 항목 제거 후 새 이름으로 저장
-    try {
-      const r = await window.storage.get("sindae-community", true);
-      if (r) { const all = JSON.parse(r.value); delete all[myName]; await window.storage.set("sindae-community", JSON.stringify(all), true); }
-    } catch { }
-    await syncToShared(n, myTeam, completed);
+    fbDeleteMember(myName);
+    setMyName(n); lsSet("sindae-myname", n);
+    fbSyncMember(n, myTeam, completed);
     setShowSettings(false);
   };
 
@@ -505,11 +757,44 @@ export default function App() {
   const selWeek = selDay !== null ? Math.floor(selDay / 7) : 0;
   const dayLabel = selDay !== null ? `${selWeek + 1}주차 ${selDay % 7 + 1}일차` : "";
 
-  const filteredMembers = commFilter === "all" ? members : members.filter(m => m.team === commFilter);
-  const thuMembers = filteredMembers.filter(m => m.team === "thu");
-  const sunMembers = filteredMembers.filter(m => m.team === "sun");
-
   /* ── 초기 로딩 스플래시 ── */
+  /* ── 카카오 인앱 브라우저 감지 ── */
+  const isKakao = /KAKAOTALK/i.test(navigator.userAgent);
+  if (isKakao) {
+    return (
+      <div className="app"><style>{makeCSS(t, fs)}</style>
+        <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 32, textAlign: "center", gap: 20, background: t.bg }}>
+          <div style={{ fontSize: 52, filter: "drop-shadow(0 0 24px rgba(200,128,26,0.5))" }}>✝</div>
+          <div style={{ fontFamily: "'Cinzel',serif", fontSize: 10, letterSpacing: "0.3em", color: t.gold, textTransform: "uppercase" }}>신대중앙교회 신약의 삶</div>
+          <div style={{ background: t.s1, border: `1px solid ${t.borderl}`, borderRadius: 20, padding: "28px 24px", maxWidth: 360, width: "100%", boxShadow: "0 0 40px rgba(200,128,26,0.1)" }}>
+            <div style={{ fontSize: 22, fontWeight: 700, color: t.cream, marginBottom: 12, lineHeight: 1.4 }}>외부 브라우저로<br />열어주세요</div>
+            <div style={{ fontSize: 14, color: t.cream2, lineHeight: 2, marginBottom: 22 }}>
+              카카오톡 안에서는<br />
+              읽기 기록이 저장되지 않아요.<br /><br />
+              아래 방법으로 열어주세요 👇
+            </div>
+            <div style={{ background: t.s2, border: `1px solid ${t.border}`, borderRadius: 12, padding: "14px 16px", textAlign: "left" }}>
+              <div style={{ fontSize: 13, color: t.gold2, fontWeight: 700, marginBottom: 8 }}>📱 iPhone (Safari로 열기)</div>
+              <div style={{ fontSize: 12, color: t.cream3, lineHeight: 1.9 }}>
+                우측 하단 <span style={{ color: t.gold, fontWeight: 700 }}>···</span> 버튼<br />
+                → <span style={{ color: t.gold, fontWeight: 700 }}>Safari로 열기</span> 선택
+              </div>
+            </div>
+            <div style={{ height: 10 }} />
+            <div style={{ background: t.s2, border: `1px solid ${t.border}`, borderRadius: 12, padding: "14px 16px", textAlign: "left" }}>
+              <div style={{ fontSize: 13, color: t.gold2, fontWeight: 700, marginBottom: 8 }}>🤖 Android (Chrome으로 열기)</div>
+              <div style={{ fontSize: 12, color: t.cream3, lineHeight: 1.9 }}>
+                우측 상단 <span style={{ color: t.gold, fontWeight: 700 }}>···</span> 버튼<br />
+                → <span style={{ color: t.gold, fontWeight: 700 }}>외부 브라우저로 열기</span> 선택
+              </div>
+            </div>
+          </div>
+          <div style={{ fontSize: 11, color: t.cream3, opacity: 0.6 }}>Safari · Chrome 권장</div>
+        </div>
+      </div>
+    );
+  }
+
   if (initializing) {
     return (
       <div className="app"><style>{makeCSS(t, fs)}</style>
@@ -556,283 +841,227 @@ export default function App() {
   return (
     <div className="app">
       <style>{makeCSS(t, fs)}</style>
+      <div className="app-inner">
 
-      {/* 설정 시트 */}
-      {showSettings && (
-        <div className="overlay" onClick={e => { if (e.target === e.currentTarget) setShowSettings(false); }}>
-          <div className="sheet">
-            <div className="sheet-handle" />
-            <div className="sheet-section">
-              <div className="sheet-label">👤 내 정보</div>
-              <div className="name-edit-row">
-                <input className="name-input" value={nameInput} onChange={e => setNameInput(e.target.value)}
-                  placeholder="이름" onKeyDown={e => { if (e.key === "Enter") saveNameEdit(); }} />
-                <button className="name-save-btn" onClick={saveNameEdit}>저장</button>
-              </div>
-              <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
-                {[{ id: "thu", icon: "🌿", label: "목요팀" }, { id: "sun", icon: "☀️", label: "일요팀" }].map(({ id, icon, label }) => (
-                  <div key={id} className={`team-opt${myTeam === id ? ` on-${id}` : ""}`}
-                    style={{ flex: 1, padding: "10px 8px" }}
-                    onClick={async () => {
-                      // 팀 변경 시 공동체 데이터 업데이트
-                      setMyTeam(id);
-                      try { await window.storage.set("sindae-myteam", id); } catch { }
-                      await syncToShared(myName, id, completed);
-                    }}>
-                    <span className="team-opt-icon" style={{ fontSize: 20 }}>{icon}</span>
-                    <div className="team-opt-label" style={{ fontSize: fs.small }}>{label}</div>
-                  </div>
-                ))}
-              </div>
+        {/* ── 전역 TTS 미니바: 읽기 화면 아닐 때 재생중이면 표시 ── */}
+        {ttsState !== "idle" && view !== "reading" && (
+          <div className="global-tts-bar">
+            <div className="global-tts-info">
+              <div className="global-tts-lbl">{ttsState === "playing" ? "음성 읽기 중" : "일시 정지됨"}</div>
+              <div className="global-tts-txt">{curVerse ? `${curVerse.book} ${curVerse.ch}장 ${curVerse.vn}절` : SCHEDULE[selDay]?.[0] || ""}</div>
             </div>
-            <div className="sheet-section">
-              <div className="sheet-label">🌓 화면 밝기</div>
-              <div className="theme-row">
-                {[{ id: "dark", icon: "🌙", label: "어두운", sub: "야간 모드" }, { id: "light", icon: "☀️", label: "밝은", sub: "낮에 읽기" }].map(({ id, icon, label, sub }) => (
-                  <div key={id} className={`theme-btn${themeName === id ? " on" : ""}`} onClick={() => saveTheme(id)}>
-                    <span className="theme-btn-icon">{icon}</span>
-                    <div className="theme-btn-label">{label}</div>
-                    <div className="theme-btn-sub">{sub}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="sheet-section" style={{ marginBottom: 0 }}>
-              <div className="sheet-label">가 글씨 크기</div>
-              <div className="fontsize-row">
-                {[{ id: "normal", label: "기본", size: 15 }, { id: "large", label: "크게", size: 20 }, { id: "xlarge", label: "매우 크게", size: 25 }].map(({ id, label, size }) => (
-                  <div key={id} className={`fs-btn${fontSize === id ? " on" : ""}`} onClick={() => saveFontSize(id)}>
-                    <span className="fs-btn-sample" style={{ fontSize: size }}>가나다</span>
-                    <div className="fs-btn-label">{label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <button className="global-tts-play" onClick={togglePlay}>{ttsState === "playing" ? "⏸" : "▶"}</button>
+            <button className="global-tts-stop" onClick={stopTts}>■</button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* 헤더 */}
-      <header className="hdr">
-        <div style={{ width: 32 }} />
-        <div className="hdr-center">
-          <div className="hdr-sub">신대중앙교회 · 표준새번역</div>
-          <div className="hdr-title">신약의 삶</div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <span className={`hdr-badge ${myTeam}`}>{TEAMS[myTeam]?.emoji} {TEAMS[myTeam]?.label}</span>
-          <button className="hdr-icon-btn" onClick={() => setShowSettings(true)}>⚙️</button>
-        </div>
-      </header>
-
-      {/* ── 홈 ── */}
-      {view === "home" && (
-        <div className="content">
-          <div className="today-card">
-            <div className="tc-badge">✦ 오늘의 말씀</div>
-            <div className="tc-day">{todayIdx + 1}일차</div>
-            <div className="tc-week">{Math.floor(todayIdx / 7) + 1}주차 · {WEEK_LABELS[Math.floor(todayIdx / 7)]}</div>
-            <div className="tc-passage">{SCHEDULE[todayIdx][0]}</div>
-            <button className="rbtn" onClick={() => openDay(todayIdx)}>📖 말씀 읽기 시작</button>
-          </div>
-          <div className="streak-row">
-            <div className="sbadge"><span className="sbadge-icon">🕯️</span><span className="sbadge-val">{completed.length}</span><span className="sbadge-lbl">완독 일수</span></div>
-            <div className="sbadge"><span className="sbadge-icon">📖</span><span className="sbadge-val">{63 - completed.length}</span><span className="sbadge-lbl">남은 일수</span></div>
-            <div className="sbadge"><span className="sbadge-icon">✦</span><span className="sbadge-val">{pct}%</span><span className="sbadge-lbl">진행률</span></div>
-          </div>
-          <div className="prog-sect">
-            <div className="sttl">전체 진행 · 63일</div>
-            <div className="prog-row">
-              <div><div className="prog-nums">{completed.length}<span style={{ fontSize: 13, color: t.cream3 }}>/63</span></div><div className="prog-of">일 완독</div></div>
-              <div className="pbar-bg"><div className="pbar-fill" style={{ width: `${pct}%` }} /></div>
-            </div>
-            <div className="week-dots">
-              {Array.from({ length: 63 }, (_, i) => (
-                <div key={i} className={`wd${completed.includes(i) ? " done" : i === todayIdx ? " cur" : ""}`} title={`${i + 1}일차`} />
-              ))}
-            </div>
-          </div>
-          <div className="motiv"><span className="motiv-mark">❝</span>{MOTIVATIONS[todayIdx % MOTIVATIONS.length]}</div>
-        </div>
-      )}
-
-      {/* ── 공동체 ── */}
-      {view === "community" && (
-        <div className="content">
-          <div className="comm-header">
-            <div className="comm-title">공동체 진도</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <div className="comm-filter">
-                {[{ id: "all", label: "전체" }, { id: "thu", label: "목요" }, { id: "sun", label: "일요" }].map(({ id, label }) => (
-                  <button key={id} className={`filter-btn${commFilter === id ? id === "thu" ? " on-thu" : id === "sun" ? " on-sun" : " on" : ""}`}
-                    onClick={() => setCommFilter(id)}>{label}</button>
-                ))}
-              </div>
-              <button className={`refresh-btn${spinning ? " spinning" : ""}`} onClick={loadMembers}>↻</button>
-            </div>
-          </div>
-
-          {commLoading && members.length === 0 ? (
-            <div className="comm-empty">불러오는 중…</div>
-          ) : (
-            <>
-              {(commFilter === "all" || commFilter === "thu") && thuMembers.length > 0 && (
-                <div className="team-section">
-                  <div className="team-section-hdr thu">
-                    <span className="team-section-icon">🌿</span>
-                    <span className="team-section-label thu">목요팀</span>
-                    <span className="team-section-count">{thuMembers.length}명</span>
-                  </div>
-                  {thuMembers.map(m => <MemberCard key={m.name} m={m} isMe={m.name === myName} team="thu" t={t} fs={fs} todayIdx={todayIdx} />)}
+        {/* 설정 시트 */}
+        {showSettings && (
+          <div className="overlay" onClick={e => { if (e.target === e.currentTarget) setShowSettings(false); }}>
+            <div className="sheet">
+              <div className="sheet-handle" />
+              <div className="sheet-section">
+                <div className="sheet-label">👤 내 정보</div>
+                <div className="name-edit-row">
+                  <input className="name-input" value={nameInput} onChange={e => setNameInput(e.target.value)}
+                    placeholder="이름" onKeyDown={e => { if (e.key === "Enter") saveNameEdit(); }} />
+                  <button className="name-save-btn" onClick={saveNameEdit}>저장</button>
                 </div>
-              )}
-              {(commFilter === "all" || commFilter === "sun") && sunMembers.length > 0 && (
-                <div className="team-section">
-                  <div className="team-section-hdr sun">
-                    <span className="team-section-icon">☀️</span>
-                    <span className="team-section-label sun">일요팀</span>
-                    <span className="team-section-count">{sunMembers.length}명</span>
-                  </div>
-                  {sunMembers.map(m => <MemberCard key={m.name} m={m} isMe={m.name === myName} team="sun" t={t} fs={fs} todayIdx={todayIdx} />)}
-                </div>
-              )}
-              {filteredMembers.length === 0 && <div className="comm-empty">아직 등록된 멤버가 없어요 🙏</div>}
-              <div className="comm-note">완독 버튼을 누르면 진도가 공유됩니다</div>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* ── 일정표 ── */}
-      {view === "schedule" && (
-        <div className="content">
-          {Array.from({ length: 9 }, (_, w) => {
-            const days = rng(w * 7, Math.min(w * 7 + 6, 62));
-            const wDone = days.filter(d => completed.includes(d)).length;
-            return (
-              <div className="week-block" key={w}>
-                <div className="wk-hdr">
-                  <span className="wk-num">WEEK {w + 1}</span>
-                  <span className="wk-sub">{WEEK_LABELS[w]}</span>
-                  <span className="wk-prog">{wDone}/{days.length}</span>
-                </div>
-                {days.map(di => {
-                  const isDone = completed.includes(di), isToday = di === todayIdx;
-                  return (
-                    <div key={di} className={`day-row${isToday ? " today-row" : ""}`} onClick={() => openDay(di)}>
-                      <div className={`dnum${isDone ? " done" : isToday ? " today" : ""}`}>{isDone ? "✓" : di + 1}</div>
-                      <div className={`dtext${isDone ? " done" : ""}`}>{SCHEDULE[di][0]}</div>
-                      {isDone && <span className="dcheck">✓</span>}
+                <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
+                  {[{ id: "thu", icon: "🌿", label: "목요팀" }, { id: "sun", icon: "☀️", label: "일요팀" }].map(({ id, icon, label }) => (
+                    <div key={id} className={`team-opt${myTeam === id ? ` on-${id}` : ""}`}
+                      style={{ flex: 1, padding: "10px 8px" }}
+                      onClick={async () => {
+                        setMyTeam(id); lsSet("sindae-myteam", id);
+                        fbSyncMember(myName, id, completed);
+                      }}>
+                      <span className="team-opt-icon" style={{ fontSize: 20 }}>{icon}</span>
+                      <div className="team-opt-label" style={{ fontSize: fs.small }}>{label}</div>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* ── 읽기 ── */}
-      {view === "reading" && selDay !== null && (
-        <>
-          <div className="rdg-topbar">
-            <button className="back-btn" onClick={() => { stopTts(); setView("home"); }}>←</button>
-            <div className="rdg-info">
-              <div className="rdg-dlbl">{dayLabel} · 표준새번역</div>
-              <div className="rdg-dtitle">{SCHEDULE[selDay][0]}</div>
+              <div className="sheet-section">
+                <div className="sheet-label">🌓 화면 밝기</div>
+                <div className="theme-row">
+                  {[{ id: "dark", icon: "🌙", label: "어두운", sub: "야간 모드" }, { id: "light", icon: "☀️", label: "밝은", sub: "낮에 읽기" }].map(({ id, icon, label, sub }) => (
+                    <div key={id} className={`theme-btn${themeName === id ? " on" : ""}`} onClick={() => saveTheme(id)}>
+                      <span className="theme-btn-icon">{icon}</span>
+                      <div className="theme-btn-label">{label}</div>
+                      <div className="theme-btn-sub">{sub}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="sheet-section" style={{ marginBottom: 0 }}>
+                <div className="sheet-label">가 글씨 크기</div>
+                <div className="fontsize-row">
+                  {[{ id: "normal", label: "기본", size: 15 }, { id: "large", label: "크게", size: 20 }, { id: "xlarge", label: "매우 크게", size: 25 }].map(({ id, label, size }) => (
+                    <div key={id} className={`fs-btn${fontSize === id ? " on" : ""}`} onClick={() => saveFontSize(id)}>
+                      <span className="fs-btn-sample" style={{ fontSize: size }}>가나다</span>
+                      <div className="fs-btn-label">{label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-          <div className="verses-wrap">
-            {(() => {
-              const items = []; let lb = null, lc = null;
-              verses.forEach((v, i) => {
-                if (v.book !== lb || v.ch !== lc) {
-                  items.push(<div key={`h${v.book}${v.ch}`} className="ch-heading">{v.book} {v.ch}장</div>);
-                  lb = v.book; lc = v.ch;
-                }
-                items.push(
-                  <div key={v.id} ref={el => { vRefs.current[i] = el; }}
-                    className={`verse-item${activeV === i ? " active" : ""}`}
-                    onClick={() => { stopTts(); setTimeout(() => startTts(i), 50); }}>
-                    <span className="vnum">{v.vn}</span>
-                    <span className="vtext">{v.text}</span>
+        )}
+
+        {/* 헤더 */}
+        <header className="hdr">
+          <div style={{ width: 32 }} />
+          <div className="hdr-center">
+            <div className="hdr-sub">신대중앙교회 · 표준새번역</div>
+            <div className="hdr-title">신약의 삶</div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <span className={`hdr-badge ${myTeam}`}>{TEAMS[myTeam]?.emoji} {TEAMS[myTeam]?.label}</span>
+            <button className="hdr-icon-btn" onClick={() => setShowSettings(true)}>⚙️</button>
+          </div>
+        </header>
+
+        {/* ── 홈 ── */}
+        {view === "home" && (
+          <div className="content">
+            <div className="today-card">
+              <div className="tc-badge">✦ 오늘의 말씀</div>
+              <div className="tc-day">{todayIdx + 1}일차</div>
+              <div className="tc-week">{Math.floor(todayIdx / 7) + 1}주차 · {WEEK_LABELS[Math.floor(todayIdx / 7)]}</div>
+              <div className="tc-passage">{SCHEDULE[todayIdx][0]}</div>
+              <button className="rbtn" onClick={() => openDay(todayIdx)}>📖 말씀 읽기 시작</button>
+            </div>
+            <div className="streak-row">
+              <div className="sbadge"><span className="sbadge-icon">🕯️</span><span className="sbadge-val">{completed.length}</span><span className="sbadge-lbl">완독 일수</span></div>
+              <div className="sbadge"><span className="sbadge-icon">📖</span><span className="sbadge-val">{63 - completed.length}</span><span className="sbadge-lbl">남은 일수</span></div>
+              <div className="sbadge"><span className="sbadge-icon">✦</span><span className="sbadge-val">{pct}%</span><span className="sbadge-lbl">진행률</span></div>
+            </div>
+            <div className="prog-sect">
+              <div className="sttl">전체 진행 · 63일</div>
+              <div className="prog-row">
+                <div><div className="prog-nums">{completed.length}<span style={{ fontSize: 13, color: t.cream3 }}>/63</span></div><div className="prog-of">일 완독</div></div>
+                <div className="pbar-bg"><div className="pbar-fill" style={{ width: `${pct}%` }} /></div>
+              </div>
+              <div className="week-dots">
+                {Array.from({ length: 63 }, (_, i) => (
+                  <div key={i} className={`wd${completed.includes(i) ? " done" : i === todayIdx ? " cur" : ""}`} title={`${i + 1}일차`} />
+                ))}
+              </div>
+            </div>
+            <div className="motiv"><span className="motiv-mark">❝</span>{MOTIVATIONS[todayIdx % MOTIVATIONS.length]}</div>
+          </div>
+        )}
+
+        {/* ── 일정표 ── */}
+        {view === "schedule" && (
+          <div className="content">
+            <div className="schedule-grid">
+              {Array.from({ length: 9 }, (_, w) => {
+                const days = rng(w * 7, Math.min(w * 7 + 6, 62));
+                const wDone = days.filter(d => completed.includes(d)).length;
+                return (
+                  <div className="week-block" key={w}>
+                    <div className="wk-hdr">
+                      <span className="wk-num">WEEK {w + 1}</span>
+                      <span className="wk-sub">{WEEK_LABELS[w]}</span>
+                      <span className="wk-prog">{wDone}/{days.length}</span>
+                    </div>
+                    {days.map(di => {
+                      const isDone = completed.includes(di), isToday = di === todayIdx;
+                      return (
+                        <div key={di} className={`day-row${isToday ? " today-row" : ""}`} onClick={() => openDay(di)}>
+                          <div className={`dnum${isDone ? " done" : isToday ? " today" : ""}`}>{isDone ? "✓" : di + 1}</div>
+                          <div className={`dtext${isDone ? " done" : ""}`}>{SCHEDULE[di][0]}</div>
+                          {isDone && <span className="dcheck">✓</span>}
+                        </div>
+                      );
+                    })}
                   </div>
                 );
-              });
-              return items;
-            })()}
+              })}
+            </div>
           </div>
-          {verses.length > 0 && (
-            <div className={`tts-bar${ttsState === "playing" ? " playing" : ""}`}>
-              <div className="tts-now">
-                <div className={`tts-dot${ttsState === "playing" ? " on" : ""}`} />
-                <span className="tts-now-txt">
-                  {ttsState !== "idle" ? (curVerse ? `${curVerse.book} ${curVerse.ch}장 ${curVerse.vn}절` : "읽는 중…") : "절을 탭하거나 ▶ 버튼으로 시작"}
-                </span>
-              </div>
-              <div className="tts-ctrl">
-                <button className="tts-skip" onClick={() => skipChapter(-1)}>⏮</button>
-                <button className="tts-play" onClick={togglePlay}>{ttsState === "playing" ? "⏸" : "▶"}</button>
-                <button className="tts-skip" onClick={() => skipChapter(1)}>⏭</button>
-                <div className="prog-wrap">
-                  <div className="prog-track"><div className="prog-fill" style={{ width: `${ttsProgress}%` }} /></div>
-                  <div className="prog-lbl">{ttsProgress}% · {chapters[chIdx]?.label} · {verses.length}절</div>
-                </div>
-              </div>
-              <div className="tts-bottom">
-                <span className="rate-lbl">속도</span>
-                {[{ v: 0.75, l: "느리게" }, { v: 0.85, l: "보통" }, { v: 1.0, l: "빠르게" }, { v: 1.15, l: "1.15×" }].map(({ v: r, l }) => (
-                  <button key={r} className={`ratebtn${ttsRate === r ? " on" : ""}`} onClick={() => changeRate(r)}>{l}</button>
-                ))}
-                <button className={`done-btn${completed.includes(selDay) ? " already" : ""}`}
-                  onClick={() => { markDone(selDay); stopTts(); setView("home"); }}>
-                  {completed.includes(selDay) ? "✓ 완료" : "완독 ✓"}
-                </button>
+        )}
+
+        {/* ── 읽기 ── */}
+        {view === "reading" && selDay !== null && (
+          <>
+            <div className="rdg-topbar">
+              <button className="back-btn" onClick={() => { stopTts(); setView("home"); }}>←</button>
+              <div className="rdg-info">
+                <div className="rdg-dlbl">{dayLabel} · 표준새번역</div>
+                <div className="rdg-dtitle">{SCHEDULE[selDay][0]}</div>
               </div>
             </div>
-          )}
-        </>
-      )}
+            <div className="verses-wrap">
+              {(() => {
+                const items = []; let lb = null, lc = null;
+                verses.forEach((v, i) => {
+                  if (v.book !== lb || v.ch !== lc) {
+                    items.push(<div key={`h${v.book}${v.ch}`} className="ch-heading">{v.book} {v.ch}장</div>);
+                    lb = v.book; lc = v.ch;
+                  }
+                  items.push(
+                    <div key={v.id} ref={el => { vRefs.current[i] = el; }}
+                      className={`verse-item${activeV === i ? " active" : ""}`}
+                      onClick={() => { stopTts(); setTimeout(() => startTts(i), 50); }}>
+                      <span className="vnum">{v.vn}</span>
+                      <span className="vtext">{v.text}</span>
+                    </div>
+                  );
+                });
+                return items;
+              })()}
+            </div>
+            {verses.length > 0 && (
+              <div className={`tts-bar${ttsState === "playing" ? " playing" : ""}`}>
+                <div className="tts-now">
+                  <div className={`tts-dot${ttsState === "playing" ? " on" : ""}`} />
+                  <span className="tts-now-txt">
+                    {ttsState !== "idle" ? (curVerse ? `${curVerse.book} ${curVerse.ch}장 ${curVerse.vn}절` : "읽는 중…") : "절을 탭하거나 ▶ 버튼으로 시작"}
+                  </span>
+                </div>
+                <div className="tts-ctrl">
+                  <button className="tts-skip" onClick={() => skipChapter(-1)}>⏮</button>
+                  <button className="tts-play" onClick={togglePlay}>{ttsState === "playing" ? "⏸" : "▶"}</button>
+                  <button className="tts-skip" onClick={() => skipChapter(1)}>⏭</button>
+                  <div className="prog-wrap">
+                    <div className="prog-track"><div className="prog-fill" style={{ width: `${ttsProgress}%` }} /></div>
+                    <div className="prog-lbl">{ttsProgress}% · {chapters[chIdx]?.label} · {verses.length}절</div>
+                  </div>
+                </div>
+                <div className="tts-bottom">
+                  <span className="rate-lbl">속도</span>
+                  {[{ v: 0.75, l: "느리게" }, { v: 0.85, l: "보통" }, { v: 1.0, l: "빠르게" }, { v: 1.15, l: "1.15×" }].map(({ v: r, l }) => (
+                    <button key={r} className={`ratebtn${ttsRate === r ? " on" : ""}`} onClick={() => changeRate(r)}>{l}</button>
+                  ))}
+                  <button className={`done-btn${completed.includes(selDay) ? " already" : ""}`}
+                    onClick={() => { markDone(selDay); stopTts(); setView("home"); }}>
+                    {completed.includes(selDay) ? "✓ 완료" : "완독 ✓"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
 
-      {/* 하단 내비 */}
-      <nav className="nav">
-        <button className={`nbtn${view === "home" ? " on" : ""}`} onClick={() => { stopTts(); setView("home"); }}>
-          <span className="ni">✦</span><span>오늘</span>
-        </button>
-        <button className={`nbtn${view === "community" ? " on" : ""}`} onClick={() => { stopTts(); setView("community"); }}>
-          <span className="ni">🤝</span><span>공동체</span>
-        </button>
-        <button className={`nbtn${view === "schedule" ? " on" : ""}`} onClick={() => { stopTts(); setView("schedule"); }}>
-          <span className="ni">≡</span><span>일정표</span>
-        </button>
-      </nav>
+        {/* 하단 내비 */}
+        <nav className="nav">
+          <button className={`nbtn${view === "home" ? " on" : ""}`} onClick={() => { stopTts(); setView("home"); }}>
+            <span className="ni">🏠</span><span>오늘 말씀</span>
+          </button>
+          <button className={`nbtn${view === "schedule" ? " on" : ""}`} onClick={() => { stopTts(); setView("schedule"); }}>
+            <span className="ni">📅</span><span>읽기 일정</span>
+          </button>
+          {/* 데스크탑 전용 설정 버튼 */}
+          <button className="desk-settings-btn" onClick={() => setShowSettings(true)}>
+            <span className="desk-settings-icon">⚙️</span>
+            <span>설정</span>
+          </button>
+        </nav>
+      </div>{/* app-inner */}
     </div>
   );
 }
 
-/* ── 멤버 카드 컴포넌트 ── */
-function MemberCard({ m, isMe, team, t, fs, todayIdx }) {
-  const pct = Math.round((m.completed.length / 63) * 100);
-  const curDay = m.completed.length < 63 ? m.completed.length : 62;
-  const passage = SCHEDULE[curDay]?.[0] || "";
-  const initial = m.name.slice(0, 1);
-  return (
-    <div className={`member-card${isMe ? " me" : ""}`}>
-      <div className={`member-avatar ${team}`}>{initial}</div>
-      <div className="member-info">
-        <div className="member-name">
-          {m.name}
-          {isMe && <span className="me-tag">나</span>}
-        </div>
-        <div className="member-progress">{m.completed.length}일 완독 · {curDay + 1}일차 진행중</div>
-        <div className="member-passage">{passage}</div>
-        <div className="member-pbar-wrap">
-          <div className="member-pbar-bg">
-            <div className={`member-pbar-fill-${team}`} style={{ width: `${pct}%` }} />
-          </div>
-          <span className={`member-pct ${team}`}>{pct}%</span>
-        </div>
-      </div>
-    </div>
-  );
-}
+
