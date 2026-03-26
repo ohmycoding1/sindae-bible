@@ -1,13 +1,17 @@
+import React from 'react'
+import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import Admin from './admin.jsx'
 import Install from './install.jsx'
 
-const path = window.location.search
-const isAdmin = path.includes('admin')
-const isInstall = path.includes('install')
+const search = window.location.search
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    {isAdmin ? <Admin /> : isInstall ? <Install /> : <App />}
+    {search.includes('admin')
+      ? <Admin />
+      : search.includes('install')
+      ? <Install />
+      : <App />}
   </React.StrictMode>
 )
