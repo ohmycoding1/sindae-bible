@@ -1,0 +1,28 @@
+{
+  "name": "신대중앙교회 신약의 삶",
+  "short_name": "신약의 삶",
+  "description": "신대중앙교회 신약성경 63일 통독 앱",
+  "start_url": "/sindae-bible/",
+  "scope": "/sindae-bible/",
+  "display": "standalone",
+  "background_color": "#faf7f2",
+  "theme_color": "#c07010",
+  "orientation": "portrait-primary",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "lifestyle"],
+  "screenshots": []
+}
