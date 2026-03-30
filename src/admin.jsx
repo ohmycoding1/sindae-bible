@@ -1,40 +1,40 @@
 import { useState, useEffect } from "react";
 
-const SCHEDULE = [
-  "마태복음 1–4장", "마태복음 5–8장", "마태복음 9–12장", "마태복음 13–16장",
-  "마태복음 17–20장", "마태복음 21–24장", "마태복음 25–28장 · 마가복음 1장",
-  "마가복음 2–5장", "마가복음 6–9장", "마가복음 10–13장",
-  "마가복음 14–16장 · 누가복음 1장", "누가복음 2–5장", "누가복음 6–9장",
-  "누가복음 10–13장", "누가복음 14–17장", "누가복음 18–21장",
-  "누가복음 22–24장 · 요한복음 1장", "요한복음 2–5장", "요한복음 6–9장",
-  "요한복음 10–13장", "요한복음 14–17장", "요한복음 18–21장 · 사도행전 1장",
-  "사도행전 2–5장", "사도행전 6–9장", "사도행전 10–13장", "사도행전 14–17장",
-  "사도행전 18–21장", "사도행전 22–25장", "사도행전 26–28장 · 로마서 1–2장",
-  "로마서 3–6장", "로마서 7–10장", "로마서 11–14장",
-  "로마서 15–16장 · 고린도전서 1–2장", "고린도전서 3–6장", "고린도전서 7–10장",
-  "고린도전서 11–14장", "고린도전서 15–16장 · 고린도후서 1–2장",
-  "고린도후서 3–6장", "고린도후서 7–10장", "고린도후서 11–13장 · 갈라디아서 1장",
-  "갈라디아서 2–5장", "갈라디아서 6장 · 에베소서 1–4장",
-  "에베소서 5–6장 · 빌립보서 1–2장", "빌립보서 3–4장 · 골로새서 1–2장",
+const SCHEDULE=[
+  "마태복음 1–4장","마태복음 5–8장","마태복음 9–12장","마태복음 13–16장",
+  "마태복음 17–20장","마태복음 21–24장","마태복음 25–28장 · 마가복음 1장",
+  "마가복음 2–5장","마가복음 6–9장","마가복음 10–13장",
+  "마가복음 14–16장 · 누가복음 1장","누가복음 2–5장","누가복음 6–9장",
+  "누가복음 10–13장","누가복음 14–17장","누가복음 18–21장",
+  "누가복음 22–24장 · 요한복음 1장","요한복음 2–5장","요한복음 6–9장",
+  "요한복음 10–13장","요한복음 14–17장","요한복음 18–21장 · 사도행전 1장",
+  "사도행전 2–5장","사도행전 6–9장","사도행전 10–13장","사도행전 14–17장",
+  "사도행전 18–21장","사도행전 22–25장","사도행전 26–28장 · 로마서 1–2장",
+  "로마서 3–6장","로마서 7–10장","로마서 11–14장",
+  "로마서 15–16장 · 고린도전서 1–2장","고린도전서 3–6장","고린도전서 7–10장",
+  "고린도전서 11–14장","고린도전서 15–16장 · 고린도후서 1–2장",
+  "고린도후서 3–6장","고린도후서 7–10장","고린도후서 11–13장 · 갈라디아서 1장",
+  "갈라디아서 2–5장","갈라디아서 6장 · 에베소서 1–4장",
+  "에베소서 5–6장 · 빌립보서 1–2장","빌립보서 3–4장 · 골로새서 1–2장",
   "골로새서 3–4장 · 데살로니가전서 1–2장",
   "데살로니가전서 3–5장 · 데살로니가후서 1장",
-  "데살로니가후서 2–3장 · 디모데전서 1–2장", "디모데전서 3–6장", "디모데후서 1–4장",
-  "디도서 1–3장 · 빌레몬서 1장 · 히브리서 1–2장", "히브리서 3–6장", "히브리서 7–10장",
-  "히브리서 11–13장 · 야고보서 1–2장", "야고보서 3–5장 · 베드로전서 1–2장",
-  "베드로전서 3–5장 · 베드로후서 1장", "베드로후서 2–3장 · 요한일서 1–2장",
-  "요한일서 3–5장", "요한이서 1장 · 요한삼서 1장 · 유다서 1장",
-  "요한계시록 1–4장", "요한계시록 5–8장", "요한계시록 9–12장",
-  "요한계시록 13–16장", "요한계시록 17–22장",
+  "데살로니가후서 2–3장 · 디모데전서 1–2장","디모데전서 3–6장","디모데후서 1–4장",
+  "디도서 1–3장 · 빌레몬서 1장 · 히브리서 1–2장","히브리서 3–6장","히브리서 7–10장",
+  "히브리서 11–13장 · 야고보서 1–2장","야고보서 3–5장 · 베드로전서 1–2장",
+  "베드로전서 3–5장 · 베드로후서 1장","베드로후서 2–3장 · 요한일서 1–2장",
+  "요한일서 3–5장","요한이서 1장 · 요한삼서 1장 · 유다서 1장",
+  "요한계시록 1–4장","요한계시록 5–8장","요한계시록 9–12장",
+  "요한계시록 13–16장","요한계시록 17–22장",
 ];
 
-const FB_CONFIG = {
-  apiKey: "AIzaSyAu9mA5u7BcIqzAiugsYvC5dTImwctihN4",
-  databaseURL: "https://sindae-bible-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "sindae-bible",
-  appId: "1:435330757852:web:a9bd689a703d9146887019",
+const FB_CONFIG={
+  apiKey:"AIzaSyAu9mA5u7BcIqzAiugsYvC5dTImwctihN4",
+  databaseURL:"https://sindae-bible-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"sindae-bible",
+  appId:"1:435330757852:web:a9bd689a703d9146887019",
 };
 
-const CSS = `
+const CSS=`
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Serif+KR:wght@300;400;500;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -136,63 +136,63 @@ html,body{background:var(--bg);font-family:'Noto Serif KR',serif;color:var(--cre
 @keyframes spin{to{transform:rotate(360deg);}}
 `;
 
-function timeAgo(ts) {
-  if (!ts) return "-";
-  const d = Date.now() - ts;
-  if (d < 60000) return "방금";
-  if (d < 3600000) return `${Math.floor(d / 60000)}분 전`;
-  if (d < 86400000) return `${Math.floor(d / 3600000)}시간 전`;
-  return `${Math.floor(d / 86400000)}일 전`;
+function timeAgo(ts){
+  if(!ts)return "-";
+  const d=Date.now()-ts;
+  if(d<60000)return "방금";
+  if(d<3600000)return `${Math.floor(d/60000)}분 전`;
+  if(d<86400000)return `${Math.floor(d/3600000)}시간 전`;
+  return `${Math.floor(d/86400000)}일 전`;
 }
 
-export default function Admin() {
-  const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [lastUpdate, setLastUpdate] = useState(null);
-  const [spinning, setSpinning] = useState(false);
-  const [filter, setFilter] = useState("all");
+export default function Admin(){
+  const [members,setMembers]=useState([]);
+  const [loading,setLoading]=useState(true);
+  const [lastUpdate,setLastUpdate]=useState(null);
+  const [spinning,setSpinning]=useState(false);
+  const [filter,setFilter]=useState("all");
 
-  const loadData = async () => {
+  const loadData=async()=>{
     setSpinning(true);
-    setLoading(members.length === 0);
-    try {
-      const { initializeApp, getApps } = await import("firebase/app");
-      const { getDatabase, ref, get } = await import("firebase/database");
-      const fbApp = getApps().length ? getApps()[0] : initializeApp(FB_CONFIG);
-      const db = getDatabase(fbApp);
-      const snap = await get(ref(db, "members"));
-      if (snap.exists()) {
-        const data = snap.val();
-        const list = Object.values(data).sort((a, b) => b.completed.length - a.completed.length);
+    setLoading(members.length===0);
+    try{
+      const {initializeApp,getApps}=await import("firebase/app");
+      const {getDatabase,ref,get}=await import("firebase/database");
+      const fbApp=getApps().length?getApps()[0]:initializeApp(FB_CONFIG);
+      const db=getDatabase(fbApp);
+      const snap=await get(ref(db,"members"));
+      if(snap.exists()){
+        const data=snap.val();
+        const list=Object.values(data).sort((a,b)=>b.completed.length-a.completed.length);
         setMembers(list);
       } else {
         setMembers([]);
       }
       setLastUpdate(Date.now());
-    } catch (e) {
-      console.error("Firebase error:", e);
+    }catch(e){
+      console.error("Firebase error:",e);
     }
     setLoading(false);
-    setTimeout(() => setSpinning(false), 700);
+    setTimeout(()=>setSpinning(false),700);
   };
 
-  useEffect(() => {
+  useEffect(()=>{
     loadData();
-    const interval = setInterval(loadData, 30000); // 30초마다 자동 새로고침
-    return () => clearInterval(interval);
-  }, []);
+    const interval=setInterval(loadData,30000); // 30초마다 자동 새로고침
+    return()=>clearInterval(interval);
+  },[]);
 
-  const thuMembers = members.filter(m => m.team === "thu");
-  const sunMembers = members.filter(m => m.team === "sun");
-  const total = members.length;
-  const avgDays = total > 0 ? Math.round(members.reduce((s, m) => s + m.completed.length, 0) / total) : 0;
-  const thuAvg = thuMembers.length > 0 ? Math.round(thuMembers.reduce((s, m) => s + m.completed.length, 0) / thuMembers.length) : 0;
-  const sunAvg = sunMembers.length > 0 ? Math.round(sunMembers.reduce((s, m) => s + m.completed.length, 0) / sunMembers.length) : 0;
-  const completedAll = members.filter(m => m.completed.length >= 63).length;
-  const overallPct = total > 0 ? Math.round(members.reduce((s, m) => s + (m.completed.length / 63), 0) / total * 100) : 0;
-  const filtered = filter === "all" ? members : members.filter(m => m.team === filter);
+  const thuMembers=members.filter(m=>m.team==="thu");
+  const sunMembers=members.filter(m=>m.team==="sun");
+  const total=members.length;
+  const avgDays=total>0?Math.round(members.reduce((s,m)=>s+m.completed.length,0)/total):0;
+  const thuAvg=thuMembers.length>0?Math.round(thuMembers.reduce((s,m)=>s+m.completed.length,0)/thuMembers.length):0;
+  const sunAvg=sunMembers.length>0?Math.round(sunMembers.reduce((s,m)=>s+m.completed.length,0)/sunMembers.length):0;
+  const completedAll=members.filter(m=>m.completed.length>=63).length;
+  const overallPct=total>0?Math.round(members.reduce((s,m)=>s+(m.completed.length/63),0)/total*100):0;
+  const filtered=filter==="all"?members:members.filter(m=>m.team===filter);
 
-  return (
+  return(
     <>
       <style>{CSS}</style>
 
@@ -204,8 +204,8 @@ export default function Admin() {
             <div className="hdr-sub">공동체 말씀 통독 대시보드</div>
           </div>
           <div className="hdr-right">
-            {lastUpdate && <div className="last-upd">업데이트 {timeAgo(lastUpdate)} · 30초마다 자동갱신</div>}
-            <button className={`refresh-btn${spinning ? " spinning" : ""}`} onClick={loadData}>
+            {lastUpdate&&<div className="last-upd">업데이트 {timeAgo(lastUpdate)} · 30초마다 자동갱신</div>}
+            <button className={`refresh-btn${spinning?" spinning":""}`} onClick={loadData}>
               ↻ 새로고침
             </button>
           </div>
@@ -213,12 +213,12 @@ export default function Admin() {
       </div>
 
       <div className="wrap">
-        {loading ? (
+        {loading?(
           <div className="loading">
-            <div style={{ fontSize: 32, animation: "spin 1s linear infinite", display: "inline-block" }}>✝</div>
-            <div style={{ marginTop: 14 }}>데이터를 불러오는 중입니다…</div>
+            <div style={{fontSize:32,animation:"spin 1s linear infinite",display:"inline-block"}}>✝</div>
+            <div style={{marginTop:14}}>데이터를 불러오는 중입니다…</div>
           </div>
-        ) : (
+        ):(
           <>
             {/* 통계 카드 */}
             <div className="stats-row">
@@ -226,11 +226,11 @@ export default function Admin() {
                 <div className="stat-icon">👥</div>
                 <div className="stat-val">{total}</div>
                 <div className="stat-lbl">전체 참여자</div>
-                <div className="stat-sub">목요 {thuMembers.length}명 · 일요 {sunMembers.length}명</div>
+                <div className="stat-sub">목요 {thuMembers.length}명 · 주일 {sunMembers.length}명</div>
               </div>
               <div className="stat-card">
                 <div className="stat-icon">📅</div>
-                <div className="stat-val">{avgDays}<span style={{ fontSize: 14, color: "var(--cream3)" }}>일</span></div>
+                <div className="stat-val">{avgDays}<span style={{fontSize:14,color:"var(--cream3)"}}>일</span></div>
                 <div className="stat-lbl">평균 완독 일수</div>
                 <div className="stat-sub">63일 기준</div>
               </div>
@@ -242,7 +242,7 @@ export default function Admin() {
               </div>
               <div className="stat-card">
                 <div className="stat-icon">📊</div>
-                <div className="stat-val">{overallPct}<span style={{ fontSize: 14, color: "var(--cream3)" }}>%</span></div>
+                <div className="stat-val">{overallPct}<span style={{fontSize:14,color:"var(--cream3)"}}>%</span></div>
                 <div className="stat-lbl">공동체 평균 진행률</div>
                 <div className="stat-sub">전체 평균</div>
               </div>
@@ -252,11 +252,11 @@ export default function Admin() {
             <div className="overall-card">
               <div className="sec-title">공동체 전체 진행률</div>
               <div className="pbar-bg">
-                <div className="pbar-fill" style={{ width: `${overallPct}%` }} />
+                <div className="pbar-fill" style={{width:`${overallPct}%`}}/>
               </div>
               <div className="pbar-nums">
                 <span>0일</span>
-                <span style={{ color: "var(--gold2)", fontWeight: 600 }}>{overallPct}% 진행</span>
+                <span style={{color:"var(--gold2)",fontWeight:600}}>{overallPct}% 진행</span>
                 <span>63일 완독</span>
               </div>
             </div>
@@ -264,9 +264,9 @@ export default function Admin() {
             {/* 팀별 현황 */}
             <div className="teams-grid">
               {[
-                { team: "thu", label: "목요팀", icon: "🌿", list: thuMembers, avg: thuAvg },
-                { team: "sun", label: "일요팀", icon: "☀️", list: sunMembers, avg: sunAvg },
-              ].map(({ team, label, icon, list, avg }) => (
+                {team:"thu",label:"목요팀",icon:"🌿",list:thuMembers,avg:thuAvg},
+                {team:"sun",label:"주일팀",icon:"☀️",list:sunMembers,avg:sunAvg},
+              ].map(({team,label,icon,list,avg})=>(
                 <div key={team} className="team-card">
                   <div className={`team-hdr ${team}`}>
                     <span className="team-icon">{icon}</span>
@@ -274,25 +274,25 @@ export default function Admin() {
                     <span className="team-meta">{list.length}명</span>
                     <span className={`team-avg ${team}`}>평균 {avg}일</span>
                   </div>
-                  {list.length === 0 ? (
+                  {list.length===0?(
                     <div className="empty">등록된 멤버가 없어요</div>
-                  ) : list.map((m, i) => {
-                    const pct = Math.round((m.completed.length / 63) * 100);
-                    const curDay = Math.min(m.completed.length, 62);
-                    const isDone = m.completed.length >= 63;
-                    return (
+                  ):list.map((m,i)=>{
+                    const pct=Math.round((m.completed.length/63)*100);
+                    const curDay=Math.min(m.completed.length,62);
+                    const isDone=m.completed.length>=63;
+                    return(
                       <div key={m.name} className="member-row">
-                        <div className={`rank${i < 3 ? " top" : ""}`}>{i + 1}</div>
-                        <div className={`avatar ${team}`}>{m.name.slice(0, 1)}</div>
+                        <div className={`rank${i<3?" top":""}`}>{i+1}</div>
+                        <div className={`avatar ${team}`}>{m.name.slice(0,1)}</div>
                         <div className="minfo">
                           <div className="mname-row">
                             <span className="mname">{m.name}</span>
-                            {isDone && <span className="done-tag">완독!</span>}
+                            {isDone&&<span className="done-tag">완독!</span>}
                           </div>
-                          <div className="mpassage">{SCHEDULE[curDay] || ""}</div>
+                          <div className="mpassage">{SCHEDULE[curDay]||""}</div>
                           <div className="mbar-wrap">
                             <div className="mbar-bg">
-                              <div className={`mbar-${team}`} style={{ width: `${pct}%` }} />
+                              <div className={`mbar-${team}`} style={{width:`${pct}%`}}/>
                             </div>
                             <span className={`mpct ${team}`}>{pct}%</span>
                           </div>
@@ -308,12 +308,12 @@ export default function Admin() {
             {/* 전체 테이블 */}
             <div className="all-card">
               <div className="all-hdr">
-                <div className="sec-title" style={{ marginBottom: 0 }}>전체 멤버 현황</div>
+                <div className="sec-title" style={{marginBottom:0}}>전체 멤버 현황</div>
                 <div className="filter-row">
-                  {[{ id: "all", l: "전체" }, { id: "thu", l: "목요" }, { id: "sun", l: "일요" }].map(({ id, l }) => (
+                  {[{id:"all",l:"전체"},{id:"thu",l:"목요"},{id:"sun",l:"주일"}].map(({id,l})=>(
                     <button key={id}
-                      className={`fbtn${filter === id ? (id === "thu" ? " on-thu" : id === "sun" ? " on-sun" : " on") : ""}`}
-                      onClick={() => setFilter(id)}>{l}</button>
+                      className={`fbtn${filter===id?(id==="thu"?" on-thu":id==="sun"?" on-sun":" on"):""}`}
+                      onClick={()=>setFilter(id)}>{l}</button>
                   ))}
                 </div>
               </div>
@@ -321,19 +321,19 @@ export default function Admin() {
                 <div>#</div><div>팀</div><div>이름 / 현재 본문</div>
                 <div>완독</div><div>진행률</div><div>마지막</div>
               </div>
-              {filtered.length === 0 ? (
+              {filtered.length===0?(
                 <div className="empty">해당하는 멤버가 없어요</div>
-              ) : filtered.map((m, i) => {
-                const pct = Math.round((m.completed.length / 63) * 100);
-                const curDay = Math.min(m.completed.length, 62);
-                const isDone = m.completed.length >= 63;
-                return (
+              ):filtered.map((m,i)=>{
+                const pct=Math.round((m.completed.length/63)*100);
+                const curDay=Math.min(m.completed.length,62);
+                const isDone=m.completed.length>=63;
+                return(
                   <div key={m.name} className="tbl-row">
-                    <div style={{ fontSize: 11, color: "var(--cream3)", fontFamily: "'Cinzel',serif" }}>{i + 1}</div>
-                    <div><span className={`t-badge ${m.team}`}>{m.team === "thu" ? "목요" : "일요"}</span></div>
-                    <div style={{ minWidth: 0 }}>
-                      <div className="t-name">{m.name}{isDone ? " ✅" : ""}</div>
-                      <div className="t-passage">{SCHEDULE[curDay] || ""}</div>
+                    <div style={{fontSize:11,color:"var(--cream3)",fontFamily:"'Cinzel',serif"}}>{i+1}</div>
+                    <div><span className={`t-badge ${m.team}`}>{m.team==="thu"?"목요":"주일"}</span></div>
+                    <div style={{minWidth:0}}>
+                      <div className="t-name">{m.name}{isDone?" ✅":""}</div>
+                      <div className="t-passage">{SCHEDULE[curDay]||""}</div>
                     </div>
                     <div className="t-days">{m.completed.length}/63</div>
                     <div className={`t-pct ${m.team}`}>{pct}%</div>
