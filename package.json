@@ -9,6 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "deploy": "gh-pages -d dist"
+    "ship": "git pull origin main && npm run build && npm run deploy"
   },
   "dependencies": {
     "firebase": "^12.11.0",
