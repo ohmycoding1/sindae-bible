@@ -57,20 +57,17 @@ html,body{background:var(--bg);font-family:'Noto Serif KR',serif;color:var(--cre
 .spinning{animation:spin 0.8s linear;}
 .last-upd{font-size:11px;color:#b89a70;}
 .hdr-right{display:flex;align-items:center;gap:10px;}
-
 .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;}
 .stat-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:0 2px 10px rgba(0,0,0,0.04);}
 .stat-icon{font-size:22px;margin-bottom:8px;}
 .stat-val{font-size:28px;font-weight:700;color:var(--gold2);font-family:'Cinzel',serif;}
 .stat-lbl{font-size:11px;color:var(--cream3);margin-top:4px;}
 .stat-sub{font-size:11px;color:var(--cream3);margin-top:2px;}
-
 .overall-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin-bottom:24px;box-shadow:0 2px 10px rgba(0,0,0,0.04);}
 .sec-title{font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.2em;color:var(--golddim);text-transform:uppercase;margin-bottom:14px;}
 .pbar-bg{background:var(--s2);border-radius:100px;height:10px;border:1px solid var(--border);overflow:hidden;margin-bottom:6px;}
 .pbar-fill{height:100%;background:linear-gradient(90deg,var(--golddim),var(--gold2),var(--gold3));border-radius:100px;transition:width 0.8s ease;}
 .pbar-nums{display:flex;justify-content:space-between;font-size:11px;color:var(--cream3);}
-
 .teams-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;}
 @media(max-width:620px){.teams-grid{grid-template-columns:1fr;}}
 .team-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.04);}
@@ -85,7 +82,6 @@ html,body{background:var(--bg);font-family:'Noto Serif KR',serif;color:var(--cre
 .team-avg{font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;margin-left:6px;}
 .team-avg.thu{background:var(--grn3);color:var(--grn);}
 .team-avg.sun{background:var(--sun3);color:var(--sun);}
-
 .member-row{padding:11px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
 .member-row:last-child{border-bottom:none;}
 .member-row:hover{background:var(--s2);}
@@ -107,7 +103,6 @@ html,body{background:var(--bg);font-family:'Noto Serif KR',serif;color:var(--cre
 .mpct.thu{color:var(--grn);}
 .mpct.sun{color:var(--sun);}
 .mdays{font-size:10px;color:var(--cream3);flex-shrink:0;}
-
 .all-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.04);}
 .all-hdr{padding:13px 18px;background:var(--s2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
 .filter-row{display:flex;gap:6px;}
@@ -129,10 +124,8 @@ html,body{background:var(--bg);font-family:'Noto Serif KR',serif;color:var(--cre
 .t-pct.thu{color:var(--grn);}
 .t-pct.sun{color:var(--sun);}
 .t-time{font-size:10px;color:var(--cream3);}
-
 .loading{text-align:center;padding:60px;color:var(--cream3);font-size:13px;}
 .empty{text-align:center;padding:32px;color:var(--cream3);font-size:13px;}
-
 @keyframes spin{to{transform:rotate(360deg);}}
 `;
 
@@ -178,7 +171,7 @@ export default function Admin(){
 
   useEffect(()=>{
     loadData();
-    const interval=setInterval(loadData,30000); // 30초마다 자동 새로고침
+    const interval=setInterval(loadData,600000); // 10분마다 자동 새로고침
     return()=>clearInterval(interval);
   },[]);
 
@@ -195,7 +188,6 @@ export default function Admin(){
   return(
     <>
       <style>{CSS}</style>
-
       <div className="hdr">
         <div className="hdr-inner">
           <div>
@@ -204,7 +196,7 @@ export default function Admin(){
             <div className="hdr-sub">공동체 말씀 통독 대시보드</div>
           </div>
           <div className="hdr-right">
-            {lastUpdate&&<div className="last-upd">업데이트 {timeAgo(lastUpdate)} · 30초마다 자동갱신</div>}
+            {lastUpdate&&<div className="last-upd">업데이트 {timeAgo(lastUpdate)} · 10분마다 자동갱신</div>}
             <button className={`refresh-btn${spinning?" spinning":""}`} onClick={loadData}>
               ↻ 새로고침
             </button>
@@ -220,7 +212,6 @@ export default function Admin(){
           </div>
         ):(
           <>
-            {/* 통계 카드 */}
             <div className="stats-row">
               <div className="stat-card">
                 <div className="stat-icon">👥</div>
@@ -248,7 +239,6 @@ export default function Admin(){
               </div>
             </div>
 
-            {/* 전체 진행 바 */}
             <div className="overall-card">
               <div className="sec-title">공동체 전체 진행률</div>
               <div className="pbar-bg">
@@ -261,7 +251,6 @@ export default function Admin(){
               </div>
             </div>
 
-            {/* 팀별 현황 */}
             <div className="teams-grid">
               {[
                 {team:"thu",label:"목요팀",icon:"🌿",list:thuMembers,avg:thuAvg},
@@ -305,7 +294,6 @@ export default function Admin(){
               ))}
             </div>
 
-            {/* 전체 테이블 */}
             <div className="all-card">
               <div className="all-hdr">
                 <div className="sec-title" style={{marginBottom:0}}>전체 멤버 현황</div>
