@@ -513,6 +513,8 @@ export default function App(){
   const chIdxRef=useRef(0);
   const rateRef=useRef(0.85);
   const vRefs=useRef({});
+  const observerRef=useRef(null); // IntersectionObserver
+  const lastVisibleRef=useRef(-1); // 마지막으로 보인 절 인덱스
   const dayIdxRef=useRef(null);
   const activeVRef=useRef(-1);
 
@@ -668,52 +670,143 @@ export default function App(){
     setActiveV(-1);activeVRef.current=-1;setChIdx(0);chIdxRef.current=0;setView("reading");
     const v=buildVerses(dayIdx);const ch=buildChapters(v);
     setVerses(v);chaptersRef.current=ch;setChapters(ch);
+    // 마지막 읽은 위치 복원
+    try{
+      const saved=parseInt(localStorage.getItem(`sindae-scroll-${dayIdx}`)||"0");
+      lastVisibleRef.current=saved;
+      if(saved>0){
+        setTimeout(()=>{
+          const el=vRefs.current[saved];
+          if(el)el.scrollIntoView({behavior:"instant",block:"start"});
+        },120);
+      }
+    }catch{}
   };
 
-  /* ── Web Speech TTS (장 단위) ── */
-  const speakChapterFrom=(cIdx,fromVIdx=-1)=>{
+  /* ── TTS: Google Neural2 우선, 실패 시 Web Speech fallback ── */
+  const GTTS_KEY="AIzaSyDhufGG8s2TXg_M-3YBMAE8nA0nXpY5Nqc";
+  const audioRef=useRef(null); // Google TTS용 Audio 객체
+
+  // Google TTS로 장 읽기 (SSML mark로 절 추적)
+  const speakChapterGoogleFrom=async(cIdx,fromVIdx=-1)=>{
     const ch=chaptersRef.current[cIdx];
     if(!ch||!isPlayingRef.current)return;
     chIdxRef.current=cIdx;setChIdx(cIdx);
-    const synth=synthRef.current;
 
-    // fromVIdx 이후 절만 읽기
     const startV=fromVIdx>=0?fromVIdx:ch.firstIdx;
     const versesToRead=ch.verses.filter(({idx})=>idx>=startV);
     if(versesToRead.length===0){
-      if(isPlayingRef.current)speakChapterFrom(cIdx+1);
+      if(isPlayingRef.current)speakChapterGoogleFrom(cIdx+1,-1);
       return;
     }
-
-    const fullText=versesToRead.map(({verse})=>verse.text).join(" ");
-    const u=new SpeechSynthesisUtterance(fullText);
-    u.lang="ko-KR";u.rate=rateRef.current;u.pitch=1.0;
-    const voice=getBestVoice();if(voice)u.voice=voice;
 
     // 첫 절 하이라이트
     const fv=versesToRead[0].idx;
     setActiveV(fv);activeVRef.current=fv;
     const el=vRefs.current[fv];if(el)el.scrollIntoView({behavior:"smooth",block:"center"});
 
-    // onboundary로 절 추적
+    // SSML 구성: 각 절 앞에 <mark> 태그
+    const ssmlParts=versesToRead.map(({verse,idx})=>
+      `<mark name="v${idx}"/>${verse.text}`
+    ).join('<break time="300ms"/>');
+    const ssml=`<speak>${ssmlParts}</speak>`;
+
+    try{
+      const res=await fetch(
+        `https://texttospeech.googleapis.com/v1/text:synthesize?key=${GTTS_KEY}`,
+        {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({
+            input:{ssml},
+            voice:{languageCode:"ko-KR",name:"ko-KR-Neural2-A"},
+            audioConfig:{audioEncoding:"MP3",speakingRate:rateRef.current},
+            enableTimePointing:["SSML_MARK"],
+          })
+        }
+      );
+      if(!res.ok)throw new Error("Google TTS failed");
+      const data=await res.json();
+
+      // base64 → Blob URL
+      const bin=atob(data.audioContent);
+      const bytes=new Uint8Array(bin.length);
+      for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+      const blob=new Blob([bytes],{type:"audio/mpeg"});
+      const blobUrl=URL.createObjectURL(blob);
+
+      // timepoints: [{markName:"v0", timeSeconds:0.1}, ...]
+      const timepoints=data.timepoints||[];
+
+      // Audio 재생
+      if(audioRef.current){audioRef.current.pause();URL.revokeObjectURL(audioRef.current.src||"");}
+      const audio=new Audio(blobUrl);
+      audioRef.current=audio;
+
+      // timepoint 기반 절 하이라이트
+      let tpIdx=0;
+      audio.addEventListener("timeupdate",()=>{
+        const ct=audio.currentTime;
+        while(tpIdx<timepoints.length&&timepoints[tpIdx].timeSeconds<=ct){
+          const vIdxStr=timepoints[tpIdx].markName.replace("v","");
+          const vIdx=parseInt(vIdxStr);
+          if(vIdx!==activeVRef.current){
+            setActiveV(vIdx);activeVRef.current=vIdx;
+            const e=vRefs.current[vIdx];if(e)e.scrollIntoView({behavior:"smooth",block:"center"});
+          }
+          tpIdx++;
+        }
+      });
+      audio.addEventListener("ended",()=>{
+        URL.revokeObjectURL(blobUrl);
+        if(isPlayingRef.current)speakChapterGoogleFrom(cIdx+1,-1);
+        else setTtsState("idle");
+      });
+      audio.addEventListener("error",()=>{
+        // Google TTS 실패 → Web Speech fallback
+        speakChapterWSFrom(cIdx,fromVIdx);
+      });
+      await audio.play();
+    }catch(e){
+      // Google TTS 실패 → Web Speech fallback
+      console.warn("Google TTS fallback:",e.message);
+      speakChapterWSFrom(cIdx,fromVIdx);
+    }
+  };
+
+  // Web Speech fallback
+  const speakChapterWSFrom=(cIdx,fromVIdx=-1)=>{
+    const ch=chaptersRef.current[cIdx];
+    if(!ch||!isPlayingRef.current)return;
+    chIdxRef.current=cIdx;setChIdx(cIdx);
+    const synth=synthRef.current;
+    const startV=fromVIdx>=0?fromVIdx:ch.firstIdx;
+    const versesToRead=ch.verses.filter(({idx})=>idx>=startV);
+    if(versesToRead.length===0){if(isPlayingRef.current)speakChapterWSFrom(cIdx+1,-1);return;}
+    const fullText=versesToRead.map(({verse})=>verse.text).join(" ");
+    const u=new SpeechSynthesisUtterance(fullText);
+    u.lang="ko-KR";u.rate=rateRef.current;u.pitch=1.0;
+    const voice=getBestVoice();if(voice)u.voice=voice;
+    const fv=versesToRead[0].idx;
+    setActiveV(fv);activeVRef.current=fv;
+    const el=vRefs.current[fv];if(el)el.scrollIntoView({behavior:"smooth",block:"center"});
     let cumLen=0;const offsets=[];
     for(const{verse,idx}of versesToRead){offsets.push({start:cumLen,idx});cumLen+=verse.text.length+1;}
     u.onboundary=(e)=>{
       if(e.name!=="word")return;
-      const ci=e.charIndex;
-      let best=offsets[0].idx;
+      const ci=e.charIndex;let best=offsets[0].idx;
       for(const o of offsets){if(ci>=o.start)best=o.idx;else break;}
       if(best!==activeVRef.current){
         setActiveV(best);activeVRef.current=best;
         const e2=vRefs.current[best];if(e2)e2.scrollIntoView({behavior:"smooth",block:"center"});
       }
     };
-    // 장 끝나면 다음 장 처음부터
-    u.onend=()=>{if(isPlayingRef.current)speakChapterFrom(cIdx+1,-1);else{setTtsState("idle");}};
-    u.onerror=(e)=>{if(e.error!=="interrupted"&&isPlayingRef.current)speakChapterFrom(cIdx+1,-1);};
+    u.onend=()=>{if(isPlayingRef.current)speakChapterWSFrom(cIdx+1,-1);else setTtsState("idle");};
+    u.onerror=(e)=>{if(e.error!=="interrupted"&&isPlayingRef.current)speakChapterWSFrom(cIdx+1,-1);};
     synth.speak(u);
   };
 
+  const speakChapterFrom=(cIdx,fromVIdx=-1)=>speakChapterGoogleFrom(cIdx,fromVIdx);
   const speakChapter=(cIdx)=>speakChapterFrom(cIdx,-1);
 
   const wakeLockRef=useRef(null);
@@ -738,8 +831,15 @@ export default function App(){
 
   const togglePlay=()=>{
     if(ttsState==="idle"){startTts(activeVRef.current>=0?activeVRef.current:0);}
-    else if(ttsState==="playing"){synthRef.current?.pause();setTtsState("paused");isPlayingRef.current=false;}
-    else if(ttsState==="paused"){synthRef.current?.resume();setTtsState("playing");isPlayingRef.current=true;}
+    else if(ttsState==="playing"){
+      synthRef.current?.pause();
+      audioRef.current?.pause();
+      setTtsState("paused");isPlayingRef.current=false;
+    }
+    else if(ttsState==="paused"){
+      if(audioRef.current){audioRef.current.play();setTtsState("playing");isPlayingRef.current=true;}
+      else{synthRef.current?.resume();setTtsState("playing");isPlayingRef.current=true;}
+    }
   };
 
   const skipChapter=(dir)=>{
@@ -748,7 +848,9 @@ export default function App(){
   };
 
   const stopTts=()=>{
-    synthRef.current?.cancel();isPlayingRef.current=false;
+    synthRef.current?.cancel();
+    if(audioRef.current){audioRef.current.pause();audioRef.current=null;}
+    isPlayingRef.current=false;
     setTtsState("idle");setActiveV(-1);activeVRef.current=-1;
     releaseWakeLock();
   };
@@ -756,7 +858,14 @@ export default function App(){
   const changeRate=async(r)=>{
     rateRef.current=r;setTtsRate(r);
     lsSet("sindae-rate2",String(r));
-    if(ttsState!=="idle"){const ci=chIdxRef.current;const av=activeVRef.current;stopTts();setTimeout(()=>{isPlayingRef.current=true;setTtsState("playing");let c=0;for(let k=0;k<chaptersRef.current.length;k++)if(chaptersRef.current[k].verses.some(v=>v.idx<=Math.max(av,0)))c=k;speakChapter(c);},80);}
+    if(ttsState!=="idle"){
+      const av=activeVRef.current;
+      stopTts();
+      setTimeout(()=>{
+        isPlayingRef.current=true;setTtsState("playing");
+        startTts(Math.max(av,0));
+      },80);
+    }
   };
 
   const showToast=(msg)=>{setToast(msg);setTimeout(()=>setToast(""),2400);};
@@ -1210,7 +1319,34 @@ export default function App(){
               <div style={{fontSize:17,fontWeight:700,fontFamily:"'Cinzel',serif",lineHeight:1.2}}>{selDay%7+1}일차</div>
             </div>
           </div>
-          <div className="verses-wrap">
+          <div className="verses-wrap" ref={el=>{
+            if(!el)return;
+            // 기존 observer 해제
+            if(observerRef.current)observerRef.current.disconnect();
+            // 새 observer: 화면에 보이는 절 감지 → 자동 저장
+            const obs=new IntersectionObserver((entries)=>{
+              let maxIdx=-1;
+              entries.forEach(e=>{
+                if(e.isIntersecting){
+                  const idx=parseInt(e.target.dataset.vidx||"-1");
+                  if(idx>maxIdx)maxIdx=idx;
+                }
+              });
+              if(maxIdx>lastVisibleRef.current){
+                lastVisibleRef.current=maxIdx;
+                try{localStorage.setItem(`sindae-scroll-${dayIdxRef.current}`,String(maxIdx));}catch{}
+              }
+            },{threshold:0.5});
+            observerRef.current=obs;
+            // 모든 verse-item 감시
+            setTimeout(()=>{
+              el.querySelectorAll("[data-vidx]").forEach(v=>obs.observe(v));
+            },100);
+          }}>
+            <div style={{fontSize:13,color:t.cream3,padding:"4px 12px 12px",display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+              <span style={{fontSize:15}}>💡</span>
+              절 탭 → 선택 · ▶ 버튼으로 재생 · 읽던 위치 자동 저장
+            </div>
             {(()=>{
               const items=[];let lb=null,lc=null;
               verses.forEach((v,i)=>{
@@ -1220,8 +1356,8 @@ export default function App(){
                 }
                 items.push(
                   <VerseItem key={v.id} refFn={el=>{vRefs.current[i]=el;}}
-                    isActive={activeV===i} vn={v.vn} text={v.text}
-                    onTap={()=>{stopTts();setTimeout(()=>startTts(i),50);}}/>
+                    isActive={activeV===i} vn={v.vn} text={v.text} vidx={i}
+                    onTap={()=>{setActiveV(i);activeVRef.current=i;}}/>
                 );
               });
               return items;
@@ -1249,15 +1385,19 @@ export default function App(){
                 <div className={`tts-toggle-dot${ttsState==="playing"?" on":""}`}/>
                 <span className="tts-toggle-txt">
                   {ttsState==="playing"?(curVerse?`${curVerse.book} ${curVerse.ch}장 ${curVerse.vn}절 읽는 중`:"읽는 중…"):
-                   ttsState==="paused"?"일시 정지됨":"🎙 음성 읽기"}
+                   ttsState==="paused"?"일시 정지됨":
+                   activeV>=0?`${verses[activeV]?.book} ${verses[activeV]?.ch}장 ${verses[activeV]?.vn}절 선택됨`:"🎙 절을 탭하고 ▶ 누르세요"}
                 </span>
-                {ttsState!=="idle"&&(
-                  <button className="tts-play" style={{width:34,height:34,fontSize:14,marginRight:6}}
-                    onClick={e=>{e.stopPropagation();togglePlay();}}>
-                    {ttsState==="playing"?"⏸":"▶"}
-                  </button>
-                )}
-                <span className={`tts-toggle-arrow${ttsOpen?" open":""}`}>▲</span>
+                {/* ▶/⏸ 버튼 항상 표시 */}
+                <button className="tts-play"
+                  style={{width:38,height:38,fontSize:16,marginRight:6,flexShrink:0}}
+                  onClick={e=>{e.stopPropagation();togglePlay();}}>
+                  {ttsState==="playing"?"⏸":"▶"}
+                </button>
+                <span className={`tts-toggle-arrow${ttsOpen?" open":""}`}
+                  style={{fontSize:11,padding:"4px 6px",borderRadius:6,background:ttsOpen?"rgba(160,96,10,0.12)":"transparent"}}>
+                  {ttsOpen?"접기":"더보기"}
+                </span>
               </div>
               {/* 펼쳐진 본문 */}
               {ttsOpen&&(
@@ -1312,7 +1452,7 @@ export default function App(){
   );
 }
 /* ── VerseItem: 스크롤 vs 탭 구분 컴포넌트 ── */
-function VerseItem({refFn, isActive, vn, text, onTap}){
+function VerseItem({refFn, isActive, vn, text, onTap, vidx}){
   const startPos=useRef(null);
   const handlePointerDown=(e)=>{
     startPos.current={x:e.clientX,y:e.clientY};
@@ -1321,13 +1461,13 @@ function VerseItem({refFn, isActive, vn, text, onTap}){
     if(!startPos.current)return;
     const dx=Math.abs(e.clientX-startPos.current.x);
     const dy=Math.abs(e.clientY-startPos.current.y);
-    // 8px 이상 움직이면 스크롤로 판단 → 탭 무시
     if(dx<8&&dy<8)onTap();
     startPos.current=null;
   };
   return(
     <div ref={refFn}
       className={`verse-item${isActive?" active":""}`}
+      data-vidx={vidx}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       onPointerCancel={()=>{startPos.current=null;}}>
